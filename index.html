@@ -1413,8 +1413,7 @@
         a.textContent = issue.title;
         var meta = document.createElement('span');
         meta.className = 'gh-issue-meta';
-        var days = Math.floor((Date.now() - new Date(issue.created_at).getTime()) / 86400000);
-        meta.textContent = issue.repo + ' · ' + formatRelative(days, currentLang);
+        meta.textContent = issue.repo;
         body.appendChild(a);
         body.appendChild(meta);
         li.appendChild(dot);
@@ -1643,8 +1642,8 @@
         .then(function (data) {
           var items = (data.items || []).map(function (it) {
             var repoUrl = it.repository_url || '';
-            var repoName = repoUrl.split('/').slice(-1)[0];
-            return { title: it.title, html_url: it.html_url, created_at: it.created_at, repo: repoName };
+            var repoName = repoUrl.replace('https://api.github.com/repos/', '');
+            return { title: it.title, html_url: it.html_url, repo: repoName };
           });
           issuesData = { total: data.total_count, items: items };
           var iEl = document.getElementById('ghStatIssues');
