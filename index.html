@@ -216,10 +216,7 @@
     animation: blink 1s steps(1) infinite;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .cursor { animation: none; }
-    .prompt .typed { animation: none; border-color: var(--accent); }
-  }
+  
 
   @keyframes blink { 50% { opacity: 0; } }
 
@@ -1516,12 +1513,8 @@
       var el = document.getElementById('typedCmd');
       var text = 'whoami';
       var i = 0;
-      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      
 
-      if (prefersReduced) {
-        el.textContent = text;
-        return;
-      }
 
       function type() {
         if (i <= text.length) {
