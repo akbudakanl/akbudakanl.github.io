@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anıl Akbudak — Portfolio</title>
+<meta name="description" content="Portfolio of an engineer working on cloud security and platform infrastructure.">
+
+<!-- Tema flaşını önlemek için, CSS'ten önce çalışan küçük script -->
+<script>
+  (function () {
+    var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    document.documentElement.dataset.theme = prefersLight ? 'light' : 'dark';
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ========================================
+     DESIGN TOKENS
+     ======================================== */
+  :root {
+    --font-display: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --max-w: 720px;
+    --radius: 10px;
+    --radius-pill: 999px;
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0F1419;
+    --bg-alt: #161C22;
+    --bg-card: #1A2028;
+    --text: #F3EEE1;
+    --text-muted: #8B9DAF;
+    --accent: #E7A339;
+    --accent-text: #0F1419;
+    --accent2: #3DB88C;
+    --accent2-text: #0F1419;
+    --rule: #232D38;
+    --scan: rgba(231, 163, 57, 0.05);
+    --accent2-glow: rgba(61, 184, 140, 0.18);
+  }
+
+  :root[data-theme="light"] {
+    --bg: #FAFAF7;
+    --bg-alt: #F0EDE4;
+    --bg-card: #EAE6DA;
+    --text: #1D1A14;
+    --text-muted: #5C5647;
+    --accent: #C07B18;
+    --accent-text: #FAFAF7;
+    --accent2: #1D8C64;
+    --accent2-text: #FAFAF7;
+    --rule: #DDD7C6;
+    --scan: rgba(185, 122, 24, 0.05);
+    --accent2-glow: rgba(29, 140, 100, 0.18);
+  }
+
+  /* ========================================
+     RESET & BASE
+     ======================================== */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html {
+    color-scheme: light dark;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-display);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    body, .cta, .project-row a, .theme-toggle, .toggle-thumb,
+    .skill-chip, .contact-link {
+      transition: background-color .3s ease, color .3s ease,
+                  border-color .3s ease, transform .2s ease,
+                  box-shadow .3s ease;
+    }
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  main {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  section { padding: 5rem 0; }
+  section + section { border-top: 1px solid var(--rule); }
+
+  @media (max-width: 600px) {
+    section { padding: 3.5rem 0; }
+  }
+
+  /* ========================================
+     SCROLL ANIMATIONS
+     ======================================== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* stagger delays */
+  .reveal-d1 { transition-delay: 0.08s; }
+  .reveal-d2 { transition-delay: 0.16s; }
+  .reveal-d3 { transition-delay: 0.24s; }
+  .reveal-d4 { transition-delay: 0.32s; }
+  .reveal-d5 { transition-delay: 0.40s; }
+
+  /* ========================================
+     TAGS & HEADINGS
+     ======================================== */
+  .tag {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    color: var(--accent2);
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.4rem, 3vw, 1.75rem);
+    letter-spacing: -0.01em;
+    margin-bottom: 1.25rem;
+  }
+
+  p { color: var(--text-muted); max-width: 56ch; }
+
+  /* ========================================
+     HERO
+     ======================================== */
+  .hero {
+    position: relative;
+    padding-top: 7rem;
+    padding-bottom: 5rem;
+  }
+
+  /* faint CRT scanline texture — single hue, fades out downward, no shapes */
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -1rem;
+    left: -1.5rem;
+    right: -1.5rem;
+    height: 320px;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--scan) 0px,
+      var(--scan) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+    mask-image: linear-gradient(to bottom, black, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero > * { position: relative; z-index: 1; }
+
+  .prompt {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .prompt::before { content: '$ '; color: var(--accent); }
+
+  /* typing animation for prompt text */
+  .prompt .typed {
+    display: inline;
+    border-right: 2px solid var(--accent);
+    animation: caret-blink 0.8s steps(1) infinite;
+  }
+
+  @keyframes caret-blink { 50% { border-color: transparent; } }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.6rem, 9vw, 4.5rem);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 0.75rem;
+  }
+
+  .cursor {
+    display: inline-block;
+    color: var(--accent);
+    animation: blink 1s steps(1) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor { animation: none; }
+    .prompt .typed { animation: none; border-color: var(--accent); }
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .role {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--accent2);
+    margin-bottom: 1.5rem;
+  }
+
+  .role::before { content: '// '; color: var(--text-muted); }
+
+  .hero-line {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 42ch;
+    margin-bottom: 2.25rem;
+  }
+
+  .cta-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    color: var(--accent-text);
+    border: none;
+    cursor: pointer;
+  }
+
+  .cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(231, 163, 57, 0.25);
+  }
+
+  .cta--ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--rule);
+  }
+
+  .cta--ghost:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    box-shadow: 0 4px 16px var(--accent2-glow);
+  }
+
+  .cta:focus-visible,
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ========================================
+     SKILLS — Chip Layout
+     ======================================== */
+  .skill-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .skill-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: transparent;
+    cursor: default;
+    user-select: none;
+  }
+
+  .skill-chip .chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    transition: background 0.3s ease;
+  }
+
+  .skill-chip:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  .skill-chip:hover .chip-dot {
+    background: var(--accent2);
+  }
+
+  /* ========================================
+     PROJECTS
+     ======================================== */
+  .project-list { list-style: none; }
+
+  .project-row + .project-row { border-top: 1px solid var(--rule); }
+
+  .project-row a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.5rem 0.75rem;
+    border-radius: var(--radius);
+    margin: 0 -0.75rem;
+  }
+
+  .project-row a:hover {
+    background: var(--bg-alt);
+  }
+
+  .project-row a:hover .project-arrow {
+    transform: translateX(6px);
+    color: var(--accent);
+  }
+
+  .project-row a:hover .project-title {
+    color: var(--accent);
+  }
+
+  .project-text { flex: 1; }
+
+  .project-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+    transition: color 0.25s ease;
+  }
+
+  .project-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .project-desc {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    max-width: 46ch;
+  }
+
+  .project-tags {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .project-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: var(--radius-pill);
+    background: var(--bg-card);
+    color: var(--text-muted);
+  }
+
+  .project-meta {
+    display: block;
+    margin-top: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.85;
+  }
+
+  .project-meta:empty { display: none; }
+
+  .project-meta a { color: inherit; border-bottom: 1px solid var(--rule); }
+  .project-meta a:hover { color: var(--accent2); border-color: var(--accent2); }
+
+  /* ========================================
+     GITHUB ACTIVITY
+     ======================================== */
+
+  /* Stat cards row */
+  .gh-stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .gh-stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .gh-stat-card:hover { border-color: var(--accent2); }
+
+  .gh-stat-value {
+    font-family: var(--font-mono);
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .gh-stat-value.loading { color: var(--rule); font-size: 1rem; }
+
+  .gh-stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* Heatmap */
+  .gh-heatmap-wrap {
+    margin-bottom: 1.75rem;
+  }
+
+  .gh-heatmap-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .gh-heatmap {
+    display: flex;
+    gap: 3px;
+    align-items: flex-end;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .gh-heatmap-col {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .gh-heatmap-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background: var(--rule);
+    transition: opacity 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .gh-heatmap-cell[data-level="1"] { background: rgba(61,184,140,0.25); }
+  .gh-heatmap-cell[data-level="2"] { background: rgba(61,184,140,0.5); }
+  .gh-heatmap-cell[data-level="3"] { background: rgba(61,184,140,0.75); }
+  .gh-heatmap-cell[data-level="4"] { background: rgba(61,184,140,1); }
+
+  :root[data-theme="light"] .gh-heatmap-cell[data-level="1"] { background: rgba(29,140,100,0.2); }
+  :root[data-theme="light"] .gh-heatmap-cell[data-level="2"] { background: rgba(29,140,100,0.45); }
+  :root[data-theme="light"] .gh-heatmap-cell[data-level="3"] { background: rgba(29,140,100,0.7); }
+  :root[data-theme="light"] .gh-heatmap-cell[data-level="4"] { background: rgba(29,140,100,0.95); }
+
+  .gh-heatmap-cell:hover { opacity: 0.7; cursor: default; }
+
+  /* Top Languages */
+  .gh-lang-wrap {
+    margin-bottom: 1.75rem;
+  }
+
+  .gh-lang-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .gh-lang-bar {
+    display: flex;
+    height: 10px;
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+    background: var(--bg-alt);
+  }
+
+  .gh-lang-segment {
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+  
+  .gh-lang-segment:hover {
+    opacity: 0.8;
+  }
+
+  .gh-lang-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .gh-lang-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .gh-lang-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* Commit meta inside project card */
+  .gh-stats {
+    display: none; /* replaced by stat cards */
+  }
+
+  /* Issues list */
+  .gh-issues {
+    list-style: none;
+    margin-top: 0;
+  }
+
+  .gh-issues:empty { display: none; }
+
+  .gh-issue-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .gh-issue-item:first-child { border-top: none; }
+
+  .gh-issue-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent2);
+    margin-top: 0.45rem;
+    flex-shrink: 0;
+  }
+
+  .gh-issue-body { flex: 1; }
+
+  .gh-issue-title {
+    font-size: 0.9rem;
+    color: var(--text);
+    display: block;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .gh-issue-title:hover {
+    color: var(--accent2);
+    border-color: var(--accent2);
+  }
+
+  .gh-issue-meta {
+    display: block;
+    margin-top: 0.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 500px) {
+    .gh-stat-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .project-arrow {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    transition: transform 0.25s ease, color 0.25s ease;
+  }
+
+  @media (max-width: 600px) {
+    .project-row a {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+
+  /* ========================================
+     CONTACT
+     ======================================== */
+  .contact-intro {
+    margin-bottom: 2rem;
+  }
+
+  .contact-group {
+    margin-bottom: 2.5rem;
+  }
+
+  .contact-group-title {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .contact-group-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* Badge-style secure contact buttons */
+  .secure-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .badge-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .badge-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  /* badge icon + arrow sizing */
+  .badge-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  .badge-btn .arrow-icon {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.7;
+  }
+
+  /* Security Email — solid, uses the primary accent (same weight as .cta) */
+  .badge-btn--security {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: transparent;
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.4rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    gap: 0.55rem;
+  }
+
+  .badge-btn--security:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+  }
+
+  /* PGP Key — outlined, same language as .cta--ghost / .contact-link */
+  .badge-btn--pgp {
+    background: transparent;
+    color: var(--text-muted);
+    border-color: var(--rule);
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.4rem;
+    font-size: 0.88rem;
+    gap: 0.55rem;
+  }
+
+  .badge-btn--pgp:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  /* PGP callout / NOTE box */
+  .pgp-note {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 1rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 1.25rem;
+  }
+
+  .pgp-note .note-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--accent2);
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .pgp-note .note-header svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  .pgp-fingerprint {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    letter-spacing: 0.06em;
+    margin-top: 0.25rem;
+    user-select: all;
+  }
+
+  /* Casual contact links */
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+  }
+
+  .contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-pill);
+  }
+
+  .contact-link:hover {
+    color: var(--accent2);
+    border-color: var(--accent2);
+    background: var(--bg-alt);
+  }
+
+  .contact-link svg {
+    width: 15px;
+    height: 15px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* ========================================
+     FOOTER
+     ======================================== */
+  footer {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 3.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .footer-note {
+    opacity: 0.6;
+    font-size: 0.72rem;
+  }
+  
+  .privacy-link {
+    color: var(--text-muted);
+    border-bottom: 1px dotted var(--rule);
+    text-decoration: none;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  
+  .privacy-link:hover {
+    color: var(--text);
+    border-color: var(--text);
+  }
+  
+  .privacy-box {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: left;
+    line-height: 1.5;
+  }
+
+  .footer-note {
+    opacity: 0.6;
+    font-size: 0.72rem;
+  }
+
+  /* ========================================
+     THEME TOGGLE
+     ======================================== */
+  .theme-toggle {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--bg-alt);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-pill);
+    padding: 0.4rem 0.6rem 0.4rem 0.9rem;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    z-index: 10;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--accent);
+  }
+
+  .toggle-track {
+    width: 34px;
+    height: 18px;
+    border-radius: var(--radius-pill);
+    background: var(--rule);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  :root[data-theme="light"] .toggle-thumb { transform: translateX(16px); }
+
+  @media (max-width: 600px) {
+    .theme-toggle { top: 1rem; right: 1rem; padding: 0.35rem 0.5rem 0.35rem 0.75rem; }
+    .toggle-label { display: none; }
+  }
+
+  /* ========================================
+     LANGUAGE TOGGLE
+     ======================================== */
+  .lang-toggle {
+    position: fixed;
+    top: 1.5rem;
+    right: 8rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg-alt);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .lang-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 0.4rem 0.75rem;
+    letter-spacing: 0.05em;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .lang-btn.active {
+    background: var(--accent2);
+    color: var(--bg);
+  }
+
+  .lang-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--rule);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    .lang-toggle { top: 1rem; right: 5.5rem; }
+  }
+
+  /* ========================================
+     STATUS INDICATOR (decorative)
+     ======================================== */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+    opacity: 0.7;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent2);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61, 184, 140, 0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(61, 184, 140, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .status-dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <button class="theme-toggle" id="themeToggle" aria-pressed="false">
+    <span class="toggle-label" id="toggleLabel">dark</span>
+    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+  </button>
+
+  <div class="lang-toggle" role="group" aria-label="Language selector">
+    <button class="lang-btn active" id="langEn" data-lang="en" aria-pressed="true">EN</button>
+    <span class="lang-divider" aria-hidden="true"></span>
+    <button class="lang-btn" id="langTr" data-lang="tr" aria-pressed="false">TR</button>
+  </div>
+
+  <main>
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+      <p class="prompt reveal reveal-d1">
+        <span class="typed" id="typedCmd"></span>
+      </p>
+      <h1 class="reveal reveal-d2">Anıl Akbudak<span class="cursor" aria-hidden="true">_</span></h1>
+      <p class="role reveal reveal-d3" data-i18n="role">Cloud Security &amp; Platform Engineering</p>
+      <div class="cta-group reveal reveal-d5">
+        <a class="cta" href="#projects" data-i18n="ctaProjects" data-i18n-href-en="#projects" data-i18n-href-tr="#projeler">View Projects</a>
+        <a class="cta cta--ghost" href="#contact" data-i18n="ctaContact" data-i18n-href-en="#contact" data-i18n-href-tr="#iletisim">Get in Touch</a>
+      </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section id="about">
+      <p class="tag reveal" data-i18n="tagAbout">// about</p>
+      <h2 class="reveal reveal-d1" data-i18n="h2About">About</h2>
+      <p class="reveal reveal-d2" data-i18n="aboutText">I work on the security of cloud systems and server infrastructure, advancing in the field of Platform Engineering. Through my personal projects, I build reference implementations grounded in zero-trust architecture — multi-layered, auditable systems designed to withstand real-world threat models.</p>
+    </section>
+
+    <!-- ===== SKILLS ===== -->
+    <section id="skills">
+      <p class="tag reveal" data-i18n="tagSkills">// skills &amp; interests</p>
+      <h2 class="reveal reveal-d1" data-i18n="h2Skills">Skills &amp; Interests</h2>
+      <div class="skill-grid reveal reveal-d2">
+        <span class="skill-chip"><span class="chip-dot"></span>Linux</span>
+        <span class="skill-chip" data-i18n-chip="zeroTrust"><span class="chip-dot"></span>Zero-Trust Architecture</span>
+        <span class="skill-chip" data-i18n-chip="iam"><span class="chip-dot"></span>IAM &amp; Access Control</span>
+        <span class="skill-chip" data-i18n-chip="netSec"><span class="chip-dot"></span>Network Security</span>
+        <span class="skill-chip" data-i18n-chip="detection"><span class="chip-dot"></span>Detection Engineering</span>
+        <span class="skill-chip" data-i18n-chip="backup"><span class="chip-dot"></span>Backup &amp; Disaster Recovery</span>
+        <span class="skill-chip" data-i18n-chip="dockerContainers"><span class="chip-dot"></span>Docker &amp; Containers</span>
+        <span class="skill-chip" data-i18n-chip="virtualization"><span class="chip-dot"></span>Virtualization</span>
+        <span class="skill-chip" data-i18n-chip="siem"><span class="chip-dot"></span>SIEM &amp; Log Analysis</span>
+        <span class="skill-chip"><span class="chip-dot"></span>Cryptography</span>
+      </div>
+    </section>
+
+    <!-- ===== PROJECTS ===== -->
+    <section id="projects">
+      <p class="tag reveal" data-i18n="tagProjects">// projects</p>
+      <h2 class="reveal reveal-d1" data-i18n="h2Projects">Projects</h2>
+      <ul class="project-list">
+        <li class="project-row reveal reveal-d2">
+          <a href="https://github.com/akbudakanl/cross-authorized-backup" target="_blank" rel="noopener">
+            <span class="project-text">
+              <span class="project-title"><span class="project-icon">🛡️</span>Cross Authorized Backup</span>
+              <span class="project-desc" data-i18n="proj1Desc">A zero-trust, multi-layered personal backup architecture — covering virtualization-based isolated backup systems on self-hosted servers and secure cross-authorized access policies for cloud backup services.</span>
+              <span class="project-tags">
+                <span class="project-tag">zero-trust</span>
+                <span class="project-tag">backup</span>
+                <span class="project-tag">self-hosted</span>
+                <span class="project-tag">cryptography</span>
+              </span>
+              <span class="project-meta" id="repoMeta" data-repo="akbudakanl/cross-authorized-backup" aria-live="polite"></span>
+              <div class="status-bar">
+                <span class="status-dot"></span>
+                <span data-i18n="status">Open to collaboration</span>
+              </div>
+            </span>
+            <span class="project-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ===== GITHUB ACTIVITY ===== -->
+    <section id="github-activity">
+      <p class="tag reveal" data-i18n="tagGithub">// github</p>
+      <h2 class="reveal reveal-d1" data-i18n="h2Github">GitHub Activity</h2>
+
+      <!-- Stat cards -->
+      <div class="gh-stat-row reveal reveal-d2">
+        <div class="gh-stat-card">
+          <span class="gh-stat-value loading" id="ghStatIssues">&mdash;</span>
+          <span class="gh-stat-label" data-i18n="ghLabelIssues">Issues</span>
+        </div>
+        <div class="gh-stat-card">
+          <span class="gh-stat-value loading" id="ghStatRepos">&mdash;</span>
+          <span class="gh-stat-label" data-i18n="ghLabelRepos">Public Repos</span>
+        </div>
+        <div class="gh-stat-card">
+          <span class="gh-stat-value loading" id="ghStatCommits">&mdash;</span>
+          <span class="gh-stat-label" data-i18n="ghLabelCommits">Commits</span>
+        </div>
+      </div>
+
+      <!-- Contribution heatmap -->
+      <div class="gh-heatmap-wrap reveal reveal-d3">
+        <p class="gh-heatmap-label" data-i18n="ghHeatmapLabel">Recent contributions</p>
+        <div class="gh-heatmap" id="ghHeatmap" aria-label="Contribution heatmap"></div>
+      </div>
+
+      <!-- Top Languages -->
+      <div class="gh-lang-wrap reveal reveal-d4">
+        <p class="gh-lang-label" data-i18n="ghLangLabel">Top Languages</p>
+        <div class="gh-lang-bar" id="ghLangBar"></div>
+        <div class="gh-lang-legend" id="ghLangLegend"></div>
+      </div>
+
+      <!-- Recent issues -->
+      <ul class="gh-issues reveal reveal-d5" id="ghIssuesList" aria-live="polite"></ul>
+
+      <!-- hidden helper elements (kept for JS compat) -->
+      <p class="gh-stats" id="ghProfileStats"></p>
+      <p class="gh-stats" id="ghCommitStats"></p>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section class="contact" id="contact">
+      <p class="tag reveal" data-i18n="tagContact">// contact</p>
+      <h2 class="reveal reveal-d1" data-i18n="h2Contact">Contact</h2>
+
+      <!-- TIER 1: Security / Confidential -->
+      <div class="contact-group reveal reveal-d2">
+        <p class="contact-group-title" data-i18n="contactSecTitle">For security reports, legal matters, or other confidential correspondence:</p>
+
+        <div class="secure-badges">
+          <!-- Security Email button: clean pill, no label text -->
+          <a class="badge-btn badge-btn--security" href="mailto:security.unplanned639@passinbox.com">
+            <!-- envelope icon -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            <span>Email</span>
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="arrow-icon"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+          </a>
+
+          <!-- PGP Key badge -->
+          <a class="badge-btn badge-btn--pgp" href="https://keys.openpgp.org/search?q=security.unplanned639@passinbox.com" target="_blank" rel="noopener">
+            <!-- shield-key icon -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 9V8h2v2h-2zm0 4v-3h2v3h-2z"/></svg>
+            <span>PGP Public Key</span>
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="arrow-icon"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+          </a>
+        </div>
+
+        <!-- NOTE callout -->
+        <div class="pgp-note reveal reveal-d3">
+          <div class="note-header">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            NOTE
+          </div>
+          <p data-i18n="pgpNote">Please encrypt your message using PGP.</p>
+          <br>
+          <span data-i18n="fingerprintLabel">Fingerprint:</span><br>
+          <code class="pgp-fingerprint">
+            F46C 0F0B D707 0F79 907E &nbsp;4D85 25D5 F85B 8362 7D9D
+          </code>
+        </div>
+      </div>
+
+      <!-- TIER 2: General / Casual -->
+      <div class="contact-group reveal reveal-d4">
+        <p class="contact-group-title" data-i18n="contactCasualTitle">For everything else</p>
+        <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-muted);" data-i18n="contactCasualDesc">GitHub discussions, issues, or Instagram DM are fine.</p>
+        <div class="contact-links">
+          <a class="contact-link" href="https://github.com/akbudakanl" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </a>
+          <a class="contact-link" href="https://instagram.com/akbudakanl" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            Instagram
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Anıl Akbudak</p>
+    <p class="footer-note">
+      <span data-i18n="footerNote">zero dependencies &middot; single file &middot; handcrafted</span> &middot; 
+      <a href="#privacy" id="privacyToggle" class="privacy-link" data-i18n="privacyLink">privacy &amp; security</a>
+    </p>
+    <div id="privacyBox" class="privacy-box" style="display: none;" data-i18n="privacyText"></div>
+  </footer>
+
+  <script>
+    // ============================
+    // i18n Translations
+    // ============================
+    var translations = {
+      en: {
+        role:             'Cloud Security &amp; Platform Engineering',
+        heroLine:         '',
+        ctaProjects:      'View Projects',
+        ctaContact:       'Get in Touch',
+        status:           'Open to collaboration',
+        tagAbout:         '// introduction',
+        h2About:          'Hello 👋',
+        aboutText:        'Hi, I\'m Anıl! I work on the security of cloud systems and server infrastructure, advancing in the field of Platform Engineering. Through my personal projects, I build reference implementations grounded in zero-trust architecture — multi-layered, auditable systems designed to withstand real-world threat models.',
+        tagSkills:        '// skills &amp; interests',
+        h2Skills:         'Skills &amp; Interests',
+        tagProjects:      '// projects',
+        h2Projects:       'Projects',
+        proj1Desc:        'A zero-trust, multi-layered personal backup architecture — covering virtualization-based isolated backup systems on self-hosted servers and secure cross-authorized access policies for cloud backup services.',
+        tagGithub:        '// github',
+        h2Github:         'GitHub Activity',
+        ghLabelIssues:    'Issues',
+        ghLabelRepos:     'Public Repos',
+        ghLabelCommits:   'Commits',
+        ghHeatmapLabel:   'Recent contributions',
+        ghLangLabel:      'Top Languages',
+        tagContact:       '// contact',
+        h2Contact:        'Contact',
+        contactSecTitle:  'For security reports, legal matters, or other confidential correspondence:',
+        pgpNote:          'Please encrypt your message using PGP.',
+        fingerprintLabel: 'Fingerprint:',
+        contactCasualTitle: 'For everything else',
+        contactCasualDesc:  'GitHub discussions, issues, or Instagram DM are fine.',
+        footerNote:       'zero dependencies &middot; single file &middot; handcrafted',
+        privacyLink:      'privacy &amp; security policy',
+        privacyText:      '<strong>Privacy &amp; Security Policy</strong><br><br>To ensure the security of our systems and network, technical device (User-Agent) and IP logs are collected. In accordance with the data minimization principle (GDPR), these logs are stored securely on Cloudflare KV for a maximum of 1 year (365 days) and are automatically and permanently deleted upon expiration. No personal data is processed for marketing purposes, and cookies (Strictly Necessary Security Cookies) are used exclusively for network security and bot detection.',
+        toggleDark:       'dark',
+        toggleLight:      'light',
+        copySuccess:      'Copied ✓',
+        // skill chips
+        chips: {
+          zeroTrust: 'Zero-Trust Architecture',
+          iam:       'IAM &amp; Access Control',
+          netSec:    'Network Security',
+          detection: 'Detection Engineering',
+          backup:    'Backup &amp; Disaster Recovery',
+          siem:      'SIEM &amp; Log Analysis',
+          dockerContainers: 'Docker &amp; Containers',
+          virtualization:   'Virtualization'
+        }
+      },
+      tr: {
+        role:             'Bulut Güvenliği &amp; Platform Mühendisliği',
+        heroLine:         '',
+        ctaProjects:      'Projelere göz at',
+        ctaContact:       'İletişime geç',
+        status:           'İş birliğine açık',
+        tagAbout:         '// tanışma',
+        h2About:          'Merhaba 👋',
+        aboutText:        'Selam! Ben Anıl. Bulut sistemleri ve sunucu altyapılarının güvenliği üzerine çalışıyor, Platform Mühendisliği alanında ilerliyorum. Kişisel projelerimde sıfır güven mimarisi ilkelerine dayalı, çok katmanlı ve denetlenebilir sistemler geliştirerek bu alanda örnek projeler üretmeye çalışıyorum.',
+        tagSkills:        '// yetenekler ve ilgi alanları',
+        h2Skills:         'Yetenekler ve İlgi Alanları',
+        tagProjects:      '// projeler',
+        h2Projects:       'Projeler',
+        proj1Desc:        'Sıfır güven ilkesiyle kurulmuş, çok katmanlı kişisel yedekleme mimarisi — self-host sunucularda sanallaştırma tabanlı izole yedekleme sistemleri ve bulut yedekleme hizmetleri için güvenli çapraz yetkili erişim politikaları.',
+        tagGithub:        '// github',
+        h2Github:         'GitHub Aktivitesi',
+        ghLabelIssues:    'Açılan Issue',
+        ghLabelRepos:     'Genel Depo',
+        ghLabelCommits:   'Commit',
+        ghHeatmapLabel:   'Son katkılar',
+        ghLangLabel:      'En Çok Kullanılan Diller',
+        tagContact:       '// iletişim',
+        h2Contact:        'İletişim',
+        contactSecTitle:  'Güvenlik raporları, yasal konular veya diğer gizli yazışmalar için:',
+        pgpNote:          'Lütfen mesajınızı PGP ile şifreleyin.',
+        fingerprintLabel: 'Parmak izi:',
+        contactCasualTitle: 'Geri kalan her şey için',
+        contactCasualDesc:  'GitHub tartışmaları, issue\'lar veya Instagram DM üzerinden ulaşabilirsiniz.',
+        footerNote:       'sıfır bağımlılık &middot; tek dosya &middot; el yapımı',
+        privacyLink:      'gizlilik ve güvenlik politikası',
+        privacyText:      '<strong>Gizlilik ve Güvenlik Politikası</strong><br><br>Sitemizin ve sistemlerimizin güvenliğini sağlamak amacıyla toplanan teknik cihaz (User-Agent) ve IP logları, veri minimizasyonu ilkesi (KVKK/GDPR) gereği en fazla 1 yıl (365 gün) süreyle Cloudflare KV üzerinde güvenli şekilde saklanmakta ve bu süre sonunda otomatik olarak kalıcı şekilde silinmektedir. Güvenlik ve anomali tespiti haricinde hiçbir amaçla veri işlenmez ve bırakılan çerezler (Strictly Necessary Security Cookies) yalnızca ağ güvenliğini ve bot tespitini sağlamak amacıyla izinsiz olarak kullanılır.',
+        toggleDark:       'koyu',
+        toggleLight:      'açık',
+        copySuccess:      'Kopyalandı ✓',
+        chips: {
+          zeroTrust: 'Sıfır-Güven Mimarisi',
+          iam:       'IAM &amp; Erişim Kontrolü',
+          netSec:    'Ağ Güvenliği',
+          detection: 'Tespit Mühendisliği',
+          backup:    'Yedekleme &amp; Felaket Kurtarma',
+          siem:      'SIEM &amp; Log Analizi',
+          dockerContainers: 'Docker ve Konteynerler',
+          virtualization:   'Sanallaştırma'
+        }
+      }
+    };
+
+    var currentLang = localStorage.getItem('lang') || 'en';
+
+    // GitHub live-data state — filled in by the fetches further down
+    var commitData = null;      // { message, days, url }
+    var profileData = null;     // { followers, following, publicRepos }
+    var commitCountData = null; // integer
+    var issuesData = null;      // { total, items: [{ title, html_url, created_at, repo }] }
+
+    function formatRelative(days, lang) {
+      if (days < 1) return lang === 'tr' ? 'bugün' : 'today';
+      if (days < 30) {
+        return lang === 'tr' ? (days + ' gün önce') : (days + ' day' + (days === 1 ? '' : 's') + ' ago');
+      }
+      var months = Math.floor(days / 30);
+      if (months < 12) {
+        return lang === 'tr' ? (months + ' ay önce') : (months + ' month' + (months === 1 ? '' : 's') + ' ago');
+      }
+      var years = Math.floor(days / 365);
+      return lang === 'tr' ? (years + ' yıl önce') : (years + ' year' + (years === 1 ? '' : 's') + ' ago');
+    }
+
+    function renderCommitMeta() {
+      var el = document.getElementById('repoMeta');
+      if (!el || !commitData) return;
+      el.innerHTML = '';
+      var link = document.createElement('a');
+      link.href = commitData.url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = '"' + commitData.message + '"';
+      el.appendChild(link);
+    }
+
+    function renderProfileStats() {
+      if (!profileData) return;
+      var rEl = document.getElementById('ghStatRepos');
+      if (rEl) { rEl.textContent = profileData.publicRepos; rEl.classList.remove('loading'); }
+    }
+
+    function renderCommitCount() {
+      if (commitCountData == null) return;
+      var cEl = document.getElementById('ghStatCommits');
+      if (cEl) { cEl.textContent = commitCountData; cEl.classList.remove('loading'); }
+    }
+
+    function buildHeatmap(weeks) {
+      var container = document.getElementById('ghHeatmap');
+      if (!container) return;
+      container.innerHTML = '';
+      weeks.forEach(function (week) {
+        var col = document.createElement('div');
+        col.className = 'gh-heatmap-col';
+        week.contributionDays.forEach(function (day) {
+          var cell = document.createElement('div');
+          cell.className = 'gh-heatmap-cell';
+          var c = day.contributionCount;
+          var level = c === 0 ? '0' : c <= 2 ? '1' : c <= 5 ? '2' : c <= 10 ? '3' : '4';
+          cell.setAttribute('data-level', level);
+          cell.setAttribute('title', day.date + ': ' + c + ' contributions');
+          col.appendChild(cell);
+        });
+        container.appendChild(col);
+      });
+    }
+
+    function buildLanguageBar(counts, total) {
+      var bar = document.getElementById('ghLangBar');
+      var legend = document.getElementById('ghLangLegend');
+      if (!bar || !legend || total === 0) return;
+      
+      var colors = {
+        'JavaScript': '#f1e05a', 'TypeScript': '#3178c6', 'Python': '#3572A5',
+        'HTML': '#e34c26', 'CSS': '#563d7c', 'Shell': '#89e051',
+        'Go': '#00ADD8', 'Java': '#b07219', 'C++': '#f34b7d', 'C': '#555555',
+        'Rust': '#dea584', 'Ruby': '#701516', 'PHP': '#4F5D95', 'C#': '#178600'
+      };
+      var defaultColor = '#8b9daf';
+      
+      var sorted = Object.keys(counts).sort(function(a,b){ return counts[b] - counts[a]; }).slice(0, 5);
+      
+      var barHtml = '';
+      var legendHtml = '';
+      
+      sorted.forEach(function (lang) {
+        var pct = ((counts[lang] / total) * 100).toFixed(1);
+        var color = colors[lang] || defaultColor;
+        barHtml += '<div class="gh-lang-segment" style="width:' + pct + '%; background:' + color + ';" title="' + lang + ' ' + pct + '%"></div>';
+        legendHtml += '<div class="gh-lang-item"><span class="gh-lang-dot" style="background:' + color + ';"></span>' + lang + ' (' + pct + '%)</div>';
+      });
+      
+      bar.innerHTML = barHtml;
+      legend.innerHTML = legendHtml;
+    }
+
+    function renderIssuesList() {
+      var el = document.getElementById('ghIssuesList');
+      if (!el || !issuesData) return;
+      el.innerHTML = '';
+      if (!issuesData.items.length) { el.style.display = 'none'; return; }
+      el.style.display = '';
+      issuesData.items.forEach(function (issue) {
+        var li = document.createElement('li');
+        li.className = 'gh-issue-item';
+        var dot = document.createElement('span');
+        dot.className = 'gh-issue-dot';
+        var body = document.createElement('div');
+        body.className = 'gh-issue-body';
+        var a = document.createElement('a');
+        a.className = 'gh-issue-title';
+        a.href = issue.html_url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = issue.title;
+        var meta = document.createElement('span');
+        meta.className = 'gh-issue-meta';
+        var days = Math.floor((Date.now() - new Date(issue.created_at).getTime()) / 86400000);
+        meta.textContent = issue.repo + ' · ' + formatRelative(days, currentLang);
+        body.appendChild(a);
+        body.appendChild(meta);
+        li.appendChild(dot);
+        li.appendChild(body);
+        el.appendChild(li);
+      });
+    }
+
+    function applyLang(lang) {
+      var t = translations[lang];
+      if (!t) return;
+      currentLang = lang;
+      localStorage.setItem('lang', lang);
+      document.documentElement.lang = lang;
+
+      // Update all data-i18n elements
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        var key = el.getAttribute('data-i18n');
+        if (t[key] !== undefined) {
+          el.innerHTML = t[key];
+        }
+      });
+
+      // Update href on CTA links
+      document.querySelectorAll('[data-i18n-href-' + lang + ']').forEach(function (el) {
+        el.href = el.getAttribute('data-i18n-href-' + lang);
+      });
+
+      // Update skill chips
+      document.querySelectorAll('[data-i18n-chip]').forEach(function (el) {
+        var chipKey = el.getAttribute('data-i18n-chip');
+        if (t.chips && t.chips[chipKey] !== undefined) {
+          // preserve the dot span
+          var dot = el.querySelector('.chip-dot');
+          el.innerHTML = '';
+          if (dot) el.appendChild(dot.cloneNode(true));
+          el.insertAdjacentHTML('beforeend', t.chips[chipKey]);
+        }
+      });
+
+      // Update theme toggle label
+      var isDark = document.documentElement.dataset.theme === 'dark';
+      var lbl = document.getElementById('toggleLabel');
+      if (lbl) lbl.textContent = isDark ? t.toggleDark : t.toggleLight;
+
+      // Update live GitHub data lines (language-aware)
+      renderCommitMeta();
+      renderProfileStats();
+      renderCommitCount();
+      renderIssuesList();
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(function (btn) {
+        var active = btn.getAttribute('data-lang') === lang;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+    }
+
+    // ============================
+    // Language toggle
+    // ============================
+    document.querySelectorAll('.lang-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        applyLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Apply on load
+    applyLang(currentLang);
+
+    // ============================
+    // Theme toggle
+    // ============================
+    var toggle = document.getElementById('themeToggle');
+    var label = document.getElementById('toggleLabel');
+    var root = document.documentElement;
+
+    function syncLabel() {
+      var t = translations[currentLang] || translations.en;
+      var isDark = root.dataset.theme === 'dark';
+      label.textContent = isDark ? t.toggleDark : t.toggleLight;
+      toggle.setAttribute('aria-pressed', String(!isDark));
+    }
+    syncLabel();
+
+    toggle.addEventListener('click', function () {
+      root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      syncLabel();
+    });
+
+    // ============================
+    // Year
+    // ============================
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ============================
+    // Typing animation
+    // ============================
+    (function () {
+      var el = document.getElementById('typedCmd');
+      var text = 'whoami';
+      var i = 0;
+      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (prefersReduced) {
+        el.textContent = text;
+        return;
+      }
+
+      function type() {
+        if (i <= text.length) {
+          el.textContent = text.slice(0, i);
+          i++;
+          setTimeout(type, 100 + Math.random() * 60);
+        }
+      }
+      setTimeout(type, 600);
+    })();
+
+    // ============================
+    // Privacy Box Toggle
+    // ============================
+    (function() {
+      var pt = document.getElementById('privacyToggle');
+      if (pt) {
+        pt.addEventListener('click', function(e) {
+          e.preventDefault();
+          var box = document.getElementById('privacyBox');
+          if (box.style.display === 'none') {
+            box.style.display = 'block';
+            setTimeout(function() {
+              box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 10);
+          } else {
+            box.style.display = 'none';
+          }
+        });
+      }
+    })();
+
+    // ============================
+    // Scroll reveal
+    // ============================
+    (function () {
+      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var reveals = document.querySelectorAll('.reveal');
+
+      if (prefersReduced) {
+        reveals.forEach(function (el) { el.classList.add('visible'); });
+        return;
+      }
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+      reveals.forEach(function (el) { observer.observe(el); });
+    })();
+    // ============================
+    // Live GitHub data (unauthenticated public API — each call fails independently)
+    // ============================
+    (function () {
+      var repoMetaEl = document.getElementById('repoMeta');
+      var GH_REPO = repoMetaEl ? repoMetaEl.getAttribute('data-repo') : null;
+      var GH_USER = GH_REPO ? GH_REPO.split('/')[0] : null;
+      if (!GH_REPO || !GH_USER) return;
+
+      // --- Latest commit + total commit count (one call does both) ---
+      fetch('https://api.github.com/repos/' + GH_REPO + '/commits?per_page=1')
+        .then(function (res) {
+          if (!res.ok) throw new Error('commits fetch failed: ' + res.status);
+          var linkHeader = res.headers.get('Link');
+          return res.json().then(function (data) { return { data: data, linkHeader: linkHeader }; });
+        })
+        .then(function (result) {
+          var data = result.data;
+          if (data && data[0]) {
+            var commit = data[0];
+            var date = new Date(commit.commit.author.date);
+            var days = Math.floor((Date.now() - date.getTime()) / 86400000);
+            commitData = {
+              message: commit.commit.message.split('\n')[0],
+              days: days,
+              url: commit.html_url
+            };
+            renderCommitMeta();
+          }
+          var total = data ? data.length : 0;
+          if (result.linkHeader) {
+            var match = result.linkHeader.match(/[?&]page=(\d+)>;\s*rel="last"/);
+            if (match) total = parseInt(match[1], 10);
+          }
+          commitCountData = total;
+          renderCommitCount();
+        })
+        .catch(function () {
+          // Fail silently — element(s) just stay empty/hidden.
+        });
+
+      // --- Profile stats: followers / following / public repos ---
+      fetch('https://api.github.com/users/' + GH_USER)
+        .then(function (res) {
+          if (!res.ok) throw new Error('user fetch failed: ' + res.status);
+          return res.json();
+        })
+        .then(function (data) {
+          profileData = {
+            publicRepos: data.public_repos
+          };
+          renderProfileStats();
+        })
+        .catch(function () {});
+
+      // --- Recent issues opened elsewhere on GitHub (Search API) ---
+      fetch('https://api.github.com/search/issues?q=author:' + GH_USER + '+type:issue&sort=created&order=desc&per_page=3')
+        .then(function (res) {
+          if (!res.ok) throw new Error('search fetch failed: ' + res.status);
+          return res.json();
+        })
+        .then(function (data) {
+          var items = (data.items || []).map(function (it) {
+            var repoUrl = it.repository_url || '';
+            var repoName = repoUrl.split('/').slice(-1)[0];
+            return { title: it.title, html_url: it.html_url, created_at: it.created_at, repo: repoName };
+          });
+          issuesData = { total: data.total_count, items: items };
+          var iEl = document.getElementById('ghStatIssues');
+          if (iEl) { iEl.textContent = data.total_count; iEl.classList.remove('loading'); }
+          renderIssuesList();
+        })
+        .catch(function () {
+          var el = document.getElementById('ghIssuesList');
+          if (el) el.style.display = 'none';
+        });
+
+      // --- Contribution heatmap via push events (last 90 days) ---
+      fetch('https://api.github.com/users/' + GH_USER + '/events/public?per_page=100')
+        .then(function (res) {
+          if (!res.ok) throw new Error('events fetch failed: ' + res.status);
+          return res.json();
+        })
+        .then(function (events) {
+          var dayMap = {};
+          (events || []).forEach(function (ev) {
+            if (ev.type !== 'PushEvent') return;
+            var d = ev.created_at ? ev.created_at.slice(0, 10) : null;
+            if (!d) return;
+            dayMap[d] = (dayMap[d] || 0) + (ev.payload && ev.payload.size ? ev.payload.size : 1);
+          });
+
+          var today = new Date();
+          var endSunday = new Date(today);
+          endSunday.setDate(today.getDate() + (6 - today.getDay()));
+          var weeks = [];
+          for (var w = 11; w >= 0; w--) {
+            var week = { contributionDays: [] };
+            for (var d = 0; d < 7; d++) {
+              var cell = new Date(endSunday);
+              cell.setDate(endSunday.getDate() - (w * 7) - (6 - d));
+              var iso = cell.toISOString().slice(0, 10);
+              week.contributionDays.push({
+                date: iso,
+                contributionCount: dayMap[iso] || 0
+              });
+            }
+            weeks.push(week);
+          }
+          buildHeatmap(weeks);
+        })
+        .catch(function () {});
+
+      // --- Top Languages via Repos API ---
+      fetch('https://api.github.com/users/' + GH_USER + '/repos?per_page=100')
+        .then(function (res) {
+          if (!res.ok) throw new Error('repos fetch failed');
+          return res.json();
+        })
+        .then(function (repos) {
+          var langCounts = {};
+          var totalLangs = 0;
+          
+          (repos || []).forEach(function (r) {
+            if (r.language && !r.fork) {
+              langCounts[r.language] = (langCounts[r.language] || 0) + 1;
+              totalLangs++;
+            }
+          });
+          
+          buildLanguageBar(langCounts, totalLangs);
+        })
+        .catch(function () {});
+        
+      // ============================
+      // Security Telemetry (Cloudflare Worker)
+      // ============================
+      var SECURITY_ENDPOINT = 'lively-dust-baa5.colorful-sky-1978.workers.dev/'; // <-- Burayı değiştireceğiz
+      if (SECURITY_ENDPOINT.indexOf('kullaniciadiniz') === -1) {
+        fetch(SECURITY_ENDPOINT, { method: 'POST', credentials: 'include' }).catch(function(){});
+      }
+    })();
+  </script>
+</body>
+</html>
