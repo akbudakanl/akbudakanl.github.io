@@ -1712,7 +1712,7 @@
       // ============================
       // Security Telemetry (Cloudflare Worker)
       // ============================
-      var SECURITY_ENDPOINT = 'lively-dust-baa5.colorful-sky-1978.workers.dev/'; // <-- Burayı değiştireceğiz
+      var SECURITY_ENDPOINT = 'https://lively-dust-baa5.colorful-sky-1978.workers.dev/';
       if (SECURITY_ENDPOINT.indexOf('kullaniciadiniz') === -1) {
         fetch(SECURITY_ENDPOINT, { method: 'POST', credentials: 'include' }).catch(function(){});
       }
