@@ -456,6 +456,12 @@
     box-shadow: 0 0 8px var(--helper);
   }
 
+  /* Telefon genişliğinde çipler tam genişlik alıp tek sütuna düşer:
+     flex-wrap'in genişliğe göre öngörülemez kırılımı yerine düzenli liste */
+  @media (max-width: 500px) {
+    .skill-chip { flex: 1 1 100%; }
+  }
+
   /* ========================================
      PROJECTS
      ======================================== */
