@@ -6,13 +6,34 @@
 <title>Anıl Akbudak — Portfolio</title>
 <meta name="description" content="Portfolio of an engineer working on cloud security and platform infrastructure.">
 
-<!-- Tema flaşını önlemek için, CSS'ten önce çalışan küçük script -->
+<!-- Anti-FOUC Theme Init Script -->
 <script>
+  // 1) Kullanıcının önceki manuel seçimi (localStorage)
+  // 2) Yoksa işletim sistemi tercihi (prefers-color-scheme)
+  // 3) O da yoksa varsayılan koyu
   (function () {
-    var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-    document.documentElement.dataset.theme = prefersLight ? 'light' : 'dark';
+    var saved = null;
+    try { saved = localStorage.getItem('theme'); } catch (e) {}
+    if (saved === 'light' || saved === 'dark') {
+      document.documentElement.dataset.theme = saved;
+    } else {
+      var prefersLight = window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.dataset.theme = prefersLight ? 'light' : 'dark';
+    }
   })();
 </script>
+
+<meta property="og:title" content="Anıl Akbudak — Cloud Security & Platform Engineering">
+<meta property="og:description" content="Threat-model-driven backup security research — reference architectures with documented trade-offs.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://akbudakanl.github.io/">
+<meta property="og:image" content="https://akbudakanl.github.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Anıl Akbudak — Cloud Security & Platform Engineering — blue >_ terminal logo on dark background">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%230F1419"/><text x="6" y="23" font-family="monospace" font-size="18" fill="%2338BDF8">&gt;_</text></svg>'>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,28 +57,48 @@
     --bg-card: #1A2028;
     --text: #F3EEE1;
     --text-muted: #8B9DAF;
-    --accent: #E7A339;
+    --accent: #38BDF8;
     --accent-text: #0F1419;
-    --accent2: #3DB88C;
+    --accent2: #38BDF8;
     --accent2-text: #0F1419;
     --rule: #232D38;
-    --scan: rgba(231, 163, 57, 0.05);
-    --accent2-glow: rgba(61, 184, 140, 0.18);
+    --scan: rgba(56, 189, 248, 0.05);
+    --accent2-glow: rgba(56, 189, 248, 0.18);
+    --accent-glow: rgba(56, 189, 248, 0.28);
+    --accent-pulse: rgba(56, 189, 248, 0.4);
+    --helper: #34D399;
+    --helper-glow: rgba(52, 211, 153, 0.18);
+    --l1: #38BDF8;
+    --l2: #60A5FA;
+    --l3: #7DD3FC;
+    --l4: #7C93A8;
+    --l5: #34D399;
   }
 
+  /* Light theme — "paper & ink": cool white ground, high-contrast text,
+     saturated accents (revised palette, replaces the washed-out beige set) */
   :root[data-theme="light"] {
-    --bg: #FAFAF7;
-    --bg-alt: #F0EDE4;
-    --bg-card: #EAE6DA;
-    --text: #1D1A14;
-    --text-muted: #5C5647;
-    --accent: #C07B18;
-    --accent-text: #FAFAF7;
-    --accent2: #1D8C64;
-    --accent2-text: #FAFAF7;
-    --rule: #DDD7C6;
-    --scan: rgba(185, 122, 24, 0.05);
-    --accent2-glow: rgba(29, 140, 100, 0.18);
+    --bg: #FBFCFE;
+    --bg-alt: #EFF3F8;
+    --bg-card: #E6ECF3;
+    --text: #101820;
+    --text-muted: #40556B;
+    --accent: #0173CE;
+    --accent-text: #FBFCFE;
+    --accent2: #0173CE;
+    --accent2-text: #FBFCFE;
+    --rule: #D7DFE9;
+    --scan: rgba(1, 115, 206, 0.07);
+    --accent2-glow: rgba(1, 115, 206, 0.2);
+    --accent-glow: rgba(1, 115, 206, 0.3);
+    --accent-pulse: rgba(1, 115, 206, 0.42);
+    --helper: #03875B;
+    --helper-glow: rgba(3, 135, 91, 0.22);
+    --l1: #0189D5;
+    --l2: #2457E6;
+    --l3: #0BA5D6;
+    --l4: #5B7189;
+    --l5: #03875B;
   }
 
   /* ========================================
@@ -149,10 +190,20 @@
     margin-bottom: 1.25rem;
   }
 
+  .h2-icon {
+    width: 0.95em;
+    height: 0.95em;
+    vertical-align: -0.12em;
+    margin-left: 0.4em;
+    color: var(--text);
+    opacity: 0.85;
+    flex-shrink: 0;
+  }
+
   p { color: var(--text-muted); max-width: 56ch; }
 
-  /* ========================================
-     HERO
+/* ========================================
+     HERO & DYNAMIC ENTRANCE
      ======================================== */
   .hero {
     position: relative;
@@ -186,11 +237,12 @@
   .prompt {
     font-family: var(--font-mono);
     font-size: 0.85rem;
-    color: var(--text-muted);
+    color: var(--accent2);
     margin-bottom: 0.75rem;
+    min-height: 1.4em; /* Yükseklik sıçramasını önler */
   }
 
-  .prompt::before { content: '$ '; color: var(--accent); }
+  .prompt::before { content: '$ '; color: var(--accent2); }
 
   /* typing animation for prompt text */
   .prompt .typed {
@@ -201,6 +253,13 @@
 
   @keyframes caret-blink { 50% { border-color: transparent; } }
 
+  /* typing finished — caret on the prompt turns off, like a real terminal */
+  .prompt .typed.done {
+    animation: none;
+    border-right-color: transparent;
+  }
+
+  /* Başlık ve Düzen */
   h1 {
     font-family: var(--font-display);
     font-weight: 600;
@@ -208,39 +267,60 @@
     letter-spacing: -0.03em;
     line-height: 1.05;
     margin-bottom: 0.75rem;
+    min-height: 1.1em; /* İsim yazılmadan önce sayfanın zıplamasını engeller */
   }
 
-  .cursor {
+  #typedName {
     display: inline-block;
-    color: var(--accent);
-    animation: blink 0.8s steps(1) infinite;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
   }
 
-  
+  #typedName.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-  @keyframes blink { 50% { opacity: 0; } }
-
+  /* Ünvan Satırı (Role) */
   .role {
     font-family: var(--font-mono);
-    font-size: 0.95rem;
-    color: var(--accent2);
+    font-size: clamp(0.68rem, 3.2vw, 0.95rem);
+    white-space: nowrap;
+    color: var(--text);
     margin-bottom: 1.5rem;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  .role.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .role::before { content: '// '; color: var(--text-muted); }
 
-  .hero-line {
-    font-size: 1.1rem;
-    color: var(--text-muted);
-    max-width: 42ch;
-    margin-bottom: 2.25rem;
-  }
-
+  /* Buton Grubu (CTA) */
   .cta-group {
     display: flex;
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  .cta-group.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .cta {
@@ -260,7 +340,6 @@
 
   .cta:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(231, 163, 57, 0.25);
   }
 
   .cta--ghost {
@@ -270,9 +349,16 @@
   }
 
   .cta--ghost:hover {
-    border-color: var(--accent2);
-    color: var(--accent2);
-    box-shadow: 0 4px 16px var(--accent2-glow);
+    border-color: var(--helper);
+    color: var(--helper);
+    box-shadow: 0 4px 16px var(--helper-glow);
+  }
+
+  /* Projects (ilk buton): hover'da cyan parlar */
+  .cta-group .cta--ghost:nth-child(1):hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 4px 16px var(--accent-glow);
   }
 
   .cta:focus-visible,
@@ -284,7 +370,7 @@
   }
 
   /* ========================================
-     SKILLS — Chip Layout
+     SKILLS — Semantic State System
      ======================================== */
   .skill-grid {
     display: flex;
@@ -293,10 +379,32 @@
     margin-top: 0.5rem;
   }
 
+  .sk-group + .sk-group {
+    margin-top: 1.75rem;
+  }
+
+  .sk-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* 1. Group Label Colors */
+  .sk-group:first-child .sk-label b {
+    color: var(--accent); /* Cyan: Hands-on */
+  }
+
+  .sk-group + .sk-group .sk-label b {
+    color: var(--helper); /* Green: Active study */
+  }
+
+  /* 2. Base Chip Styling (Clean & Understated) */
   .skill-chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.45rem;
     padding: 0.35rem 0.75rem;
     border: 1px solid var(--rule);
     border-radius: var(--radius-pill);
@@ -306,24 +414,46 @@
     background: transparent;
     cursor: default;
     user-select: none;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
   }
 
+  /* Base Dot */
   .skill-chip .chip-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--accent);
     flex-shrink: 0;
-    transition: background 0.3s ease;
+    transition: all 0.2s ease;
   }
 
-  .skill-chip:hover {
-    border-color: var(--accent2);
-    color: var(--accent2);
+  /* 3. Hands-on Chips (Solid Cyan Dot) */
+  .sk-group:first-child .skill-chip .chip-dot {
+    background: var(--accent);
   }
 
-  .skill-chip:hover .chip-dot {
-    background: var(--accent2);
+  .sk-group:first-child .skill-chip:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    transform: translateY(-1px);
+  }
+
+  .sk-group:first-child .skill-chip:hover .chip-dot {
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* 4. In-Progress Chips (Solid Green Dot) */
+  .sk-group + .sk-group .skill-chip .chip-dot {
+    background: var(--helper);
+  }
+
+  .sk-group + .sk-group .skill-chip:hover {
+    border-color: var(--helper);
+    color: var(--text);
+    transform: translateY(-1px);
+  }
+
+  .sk-group + .sk-group .skill-chip:hover .chip-dot {
+    box-shadow: 0 0 8px var(--helper);
   }
 
   /* ========================================
@@ -347,13 +477,14 @@
     background: var(--bg-alt);
   }
 
+  /* 1. Interactive hover uses Primary Cyan */
   .project-row a:hover .project-arrow {
     transform: translateX(6px);
-    color: var(--accent);
+    color: var(--accent); /* Cyan */
   }
 
   .project-row a:hover .project-title {
-    color: var(--accent);
+    color: var(--accent); /* Cyan */
   }
 
   .project-text { flex: 1; }
@@ -430,10 +561,14 @@
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
   }
 
-  .gh-stat-card:hover { border-color: var(--accent2); }
+  .gh-stat-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px var(--accent-glow);
+    transform: translateY(-2px);
+  }
 
   .gh-stat-value {
     font-family: var(--font-mono);
@@ -488,15 +623,15 @@
     flex-shrink: 0;
   }
 
-  .gh-heatmap-cell[data-level="1"] { background: rgba(61,184,140,0.25); }
-  .gh-heatmap-cell[data-level="2"] { background: rgba(61,184,140,0.5); }
-  .gh-heatmap-cell[data-level="3"] { background: rgba(61,184,140,0.75); }
-  .gh-heatmap-cell[data-level="4"] { background: rgba(61,184,140,1); }
+  .gh-heatmap-cell[data-level="1"] { background: rgba(52,211,153,0.25); }
+  .gh-heatmap-cell[data-level="2"] { background: rgba(52,211,153,0.5); }
+  .gh-heatmap-cell[data-level="3"] { background: rgba(52,211,153,0.75); }
+  .gh-heatmap-cell[data-level="4"] { background: rgba(52,211,153,1); }
 
-  :root[data-theme="light"] .gh-heatmap-cell[data-level="1"] { background: rgba(29,140,100,0.2); }
-  :root[data-theme="light"] .gh-heatmap-cell[data-level="2"] { background: rgba(29,140,100,0.45); }
-  :root[data-theme="light"] .gh-heatmap-cell[data-level="3"] { background: rgba(29,140,100,0.7); }
-  :root[data-theme="light"] .gh-heatmap-cell[data-level="4"] { background: rgba(29,140,100,0.95); }
+  :root[data-theme="light"] .gh-heatmap-cell[data-level="1"] { background: rgba(3, 135, 91, 0.25); }
+  :root[data-theme="light"] .gh-heatmap-cell[data-level="2"] { background: rgba(3, 135, 91, 0.5); }
+  :root[data-theme="light"] .gh-heatmap-cell[data-level="3"] { background: rgba(3, 135, 91, 0.75); }
+  :root[data-theme="light"] .gh-heatmap-cell[data-level="4"] { background: rgba(3, 135, 91, 1); }
 
   .gh-heatmap-cell:hover { opacity: 0.7; cursor: default; }
 
@@ -578,7 +713,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--accent2);
+    background: var(--helper);
     margin-top: 0.45rem;
     flex-shrink: 0;
   }
@@ -594,8 +729,8 @@
   }
 
   .gh-issue-title:hover {
-    color: var(--accent2);
-    border-color: var(--accent2);
+    color: var(--accent); /* Cyan: interactive link standard */
+    border-color: var(--accent);
   }
 
   .gh-issue-meta {
@@ -729,9 +864,30 @@
     gap: 0.55rem;
   }
 
+  /* Ghost base shared by Email & PGP badges */
+  .badge-btn--email,
+  .badge-btn--pgp {
+    background: transparent;
+    color: var(--text-muted);
+    border-color: var(--rule);
+    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.4rem;
+    font-size: 0.88rem;
+    gap: 0.55rem;
+  }
+
+  /* Email: hover'da ana renkte (cyan) parlar */
+  .badge-btn--email:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 4px 16px var(--accent-glow);
+  }
+
+  /* PGP: hover'da yardimci renkte (yesil) parlar */
   .badge-btn--pgp:hover {
-    border-color: var(--accent2);
-    color: var(--accent2);
+    border-color: var(--helper);
+    color: var(--helper);
+    box-shadow: 0 4px 16px var(--helper-glow);
   }
 
   /* PGP callout / NOTE box */
@@ -767,6 +923,10 @@
     flex-shrink: 0;
   }
 
+  /* PGP notu yardimci renk vurgusu */
+  .pgp-note { border-left-color: var(--helper); }
+  .pgp-note .note-header { color: var(--helper); }
+
   .pgp-fingerprint {
     display: inline-block;
     font-family: var(--font-mono);
@@ -779,6 +939,16 @@
     letter-spacing: 0.06em;
     margin-top: 0.25rem;
     user-select: all;
+  }
+
+  .pgp-fingerprint.copyable {
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .pgp-fingerprint.copyable:hover {
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   /* Casual contact links */
@@ -802,10 +972,22 @@
   }
 
   .contact-link:hover {
-    color: var(--accent2);
-    border-color: var(--accent2);
+    color: var(--accent);
+    border-color: var(--accent);
     background: var(--bg-alt);
   }
+
+
+
+  /* Sosyal linkler: normalde nötr ghost, hover'da marka rengini kazanır */
+  .contact-link--instagram { color: var(--text-muted); border-color: var(--rule); }
+  a.contact-link--instagram:hover,
+  a.contact-link--instagram:focus-visible { color: #E1306C; border-color: #E1306C; }
+
+  /* GitHub: gerçek markası gibi siyah-beyaz, hover dahil */
+  a.contact-link--github,
+  a.contact-link--github:hover,
+  a.contact-link--github:focus-visible { color: var(--text); border-color: var(--rule); }
 
   .contact-link svg {
     width: 15px;
@@ -855,37 +1037,38 @@
     background: var(--bg-card);
     border: 1px solid var(--rule);
     border-radius: var(--radius);
-    font-family: var(--font-sans);
+    font-family: var(--font-display); /* fixed from undefined var(--font-sans) */
     font-size: 0.8rem;
     color: var(--text-muted);
     text-align: left;
     line-height: 1.5;
   }
 
-  .footer-note {
-    opacity: 0.6;
-    font-size: 0.72rem;
-  }
-
   /* ========================================
      THEME TOGGLE
      ======================================== */
-  .theme-toggle {
+  /* Sağ üst kontroller (dil + tema) tek flex kabında — daima aynı hizada */
+  .top-controls {
     position: fixed;
     top: 1.5rem;
     right: 1.5rem;
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    z-index: 10;
+  }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
     background: var(--bg-alt);
     border: 1px solid var(--rule);
     border-radius: var(--radius-pill);
-    padding: 0.4rem 0.6rem 0.4rem 0.9rem;
+    padding: 0.42rem;
     cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
     color: var(--text-muted);
-    z-index: 10;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
@@ -894,40 +1077,37 @@
     border-color: var(--accent);
   }
 
+  /* İkon rozeti: aktif temayı gösterir (ay = koyu, güneş = açık) */
   .toggle-track {
-    width: 34px;
-    height: 18px;
-    border-radius: var(--radius-pill);
-    background: var(--rule);
-    position: relative;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
     flex-shrink: 0;
   }
 
-  .toggle-thumb {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--accent);
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  .toggle-track svg {
+    width: 15px;
+    height: 15px;
   }
 
-  :root[data-theme="light"] .toggle-thumb { transform: translateX(16px); }
+  /* tersi: buton geçilecek modu gösterir (koyu→güneş, açık→ay) */
+  .toggle-track .icon-moon { display: none; }
+  :root[data-theme="light"] .toggle-track .icon-moon { display: block; }
+  :root[data-theme="light"] .toggle-track .icon-sun { display: none; }
 
   @media (max-width: 600px) {
-    .theme-toggle { top: 1rem; right: 1rem; padding: 0.35rem 0.5rem 0.35rem 0.75rem; }
-    .toggle-label { display: none; }
+    .top-controls { top: 1rem; right: 1rem; }
+    .theme-toggle { padding: 0.35rem; }
   }
 
   /* ========================================
      LANGUAGE TOGGLE
      ======================================== */
   .lang-toggle {
-    position: fixed;
-    top: 1.5rem;
-    right: 8rem;
     display: flex;
     align-items: center;
     gap: 0;
@@ -965,91 +1145,109 @@
     flex-shrink: 0;
   }
 
-  @media (max-width: 600px) {
-    .lang-toggle { top: 1rem; right: 5.5rem; }
-  }
-
-  /* ========================================
-     STATUS INDICATOR (decorative)
+/* ========================================
+     PROJECTS — Status States
      ======================================== */
+
+  /* 2. Status indicator stays Semantic Green */
   .status-bar {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-family: var(--font-mono);
     font-size: 0.78rem;
-    color: var(--text-muted);
+    color: var(--helper); /* Green */
     margin-top: 0.75rem;
-    opacity: 0.7;
+    opacity: 0.85;
   }
 
   .status-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--accent2);
+    background: var(--helper); /* Green */
     animation: pulse-dot 2s ease-in-out infinite;
   }
 
   @keyframes pulse-dot {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61, 184, 140, 0.4); }
-    50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(61, 184, 140, 0); }
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4);
+    }
+    50% {
+      opacity: 0.7;
+      box-shadow: 0 0 0 5px rgba(52, 211, 153, 0);
+    }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .status-dot { animation: none; }
-  }
 </style>
+  <noscript><style>#typedName,.role,.cta-group{opacity:1;transform:none}</style></noscript>
 </head>
 <body>
 
-  <button class="theme-toggle" id="themeToggle" aria-pressed="false">
-    <span class="toggle-label" id="toggleLabel">dark</span>
-    <span class="toggle-track"><span class="toggle-thumb"></span></span>
-  </button>
+  <div class="top-controls">
+    <div class="lang-toggle" role="group" aria-label="Language selector">
+      <button class="lang-btn active" id="langEn" data-lang="en" aria-pressed="true">EN</button>
+      <span class="lang-divider" aria-hidden="true"></span>
+      <button class="lang-btn" id="langTr" data-lang="tr" aria-pressed="false">TR</button>
+    </div>
 
-  <div class="lang-toggle" role="group" aria-label="Language selector">
-    <button class="lang-btn active" id="langEn" data-lang="en" aria-pressed="true">EN</button>
-    <span class="lang-divider" aria-hidden="true"></span>
-    <button class="lang-btn" id="langTr" data-lang="tr" aria-pressed="false">TR</button>
+    <button class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="Toggle theme">
+      <span class="toggle-track" aria-hidden="true">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </span>
+    </button>
   </div>
 
   <main>
     <!-- ===== HERO ===== -->
     <section class="hero">
-      <p class="prompt reveal reveal-d1">
+      <p class="prompt">
         <span class="typed" id="typedCmd"></span>
       </p>
-      <h1 class="reveal reveal-d2">Anıl Akbudak<span class="cursor" aria-hidden="true">_</span></h1>
-      <p class="role reveal reveal-d3" data-i18n="role">Cloud Security &amp; Platform Engineering</p>
-      <div class="cta-group reveal reveal-d5">
-      <a class="cta" href="#projects" data-i18n="ctaProjects">View Projects</a>
-      <a class="cta cta--ghost" href="#contact" data-i18n="ctaContact">Get in Touch</a>
+      <h1><span id="typedName"></span></h1>
+      <p class="role" id="roleLine" data-i18n="role">Cloud Security &amp; Platform Engineering</p>
+      <div class="cta-group" id="heroCta">
+      <!-- Ghost Primary — glows cyan only on hover -->
+      <a class="cta cta--ghost" href="#projects" data-i18n="ctaProjects">Projects</a>
+      <!-- Ghost Secondary -->
+      <a class="cta cta--ghost" href="#contact" data-i18n="ctaContact">Contact</a>
       </div>
     </section>
 
     <!-- ===== ABOUT ===== -->
     <section id="about">
-      <p class="tag reveal" data-i18n="tagAbout">// about</p>
-      <h2 class="reveal reveal-d1" data-i18n="h2About">About</h2>
-      <p class="reveal reveal-d2" data-i18n="aboutText">I study on the security of cloud systems and server infrastructure, advancing in the field of Platform Engineering. Through my personal projects, I build reference implementations grounded in zero-trust architecture — multi-layered, auditable systems designed to withstand real-world threat models.</p>
+      <p class="tag reveal" data-i18n="tagAbout">// introduction</p>
+      <h2 class="reveal reveal-d1" data-i18n="h2About">Hello <svg class="h2-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5 13.8 8.7 20 10 13.8 11.3 12 17.5 10.2 11.3 4 10l6.2-1.3z"/></svg></h2>
+      <p class="reveal reveal-d2" data-i18n="aboutText">Hi, I'm Anıl! I work on the security of cloud systems and server infrastructure, developing toward platform engineering. In my personal projects, I build multi-layered systems grounded in zero-trust principles, aiming to develop example defense systems against current cyber threats.</p>
     </section>
 
     <!-- ===== SKILLS ===== -->
     <section id="skills">
       <p class="tag reveal" data-i18n="tagSkills">// skills &amp; interests</p>
       <h2 class="reveal reveal-d1" data-i18n="h2Skills">Skills &amp; Interests</h2>
-      <div class="skill-grid reveal reveal-d2">
-        <span class="skill-chip"><span class="chip-dot"></span>Linux</span>
-        <span class="skill-chip" data-i18n-chip="zeroTrust"><span class="chip-dot"></span>Zero-Trust Architecture</span>
-        <span class="skill-chip" data-i18n-chip="iam"><span class="chip-dot"></span>IAM &amp; Access Control</span>
-        <span class="skill-chip" data-i18n-chip="netSec"><span class="chip-dot"></span>Network Security</span>
-        <span class="skill-chip" data-i18n-chip="detection"><span class="chip-dot"></span>Detection Engineering</span>
-        <span class="skill-chip" data-i18n-chip="backup"><span class="chip-dot"></span>Backup &amp; Disaster Recovery</span>
-        <span class="skill-chip" data-i18n-chip="dockerContainers"><span class="chip-dot"></span>Docker &amp; Containers</span>
-        <span class="skill-chip" data-i18n-chip="virtualization"><span class="chip-dot"></span>Virtualization</span>
-        <span class="skill-chip" data-i18n-chip="siem"><span class="chip-dot"></span>SIEM &amp; Log Analysis</span>
-        <span class="skill-chip" data-i18n-chip="crypto"><span class="chip-dot"></span>Cryptography</span>
+      <div class="reveal reveal-d2">
+        <div class="sk-group">
+          <p class="sk-label" data-i18n="skAppliedLabel"><b>hands-on</b>:</p>
+          <div class="skill-grid">
+            <span class="skill-chip applied"><span class="chip-dot"></span>Linux</span>
+            <span class="skill-chip applied" data-i18n-chip="zeroTrust"><span class="chip-dot"></span>Zero-Trust Architecture</span>
+            <span class="skill-chip applied" data-i18n-chip="iam"><span class="chip-dot"></span>IAM &amp; Access Control</span>
+            <span class="skill-chip applied" data-i18n-chip="netSec"><span class="chip-dot"></span>Network Security</span>
+            <span class="skill-chip applied" data-i18n-chip="backup"><span class="chip-dot"></span>Backup &amp; Disaster Recovery</span>
+            <span class="skill-chip applied" data-i18n-chip="virtualization"><span class="chip-dot"></span>Virtualization</span>
+          </div>
+        </div>
+        <div class="sk-group">
+          <p class="sk-label" data-i18n="skStudyLabel"><b>in progress</b>:</p>
+          <div class="skill-grid">
+            <span class="skill-chip" data-i18n-chip="detection"><span class="chip-dot"></span>Detection Engineering</span>
+            <span class="skill-chip" data-i18n-chip="siem"><span class="chip-dot"></span>SIEM &amp; Log Analysis</span>
+            <span class="skill-chip" data-i18n-chip="crypto"><span class="chip-dot"></span>Cryptography</span>
+            <span class="skill-chip" data-i18n-chip="dockerContainers"><span class="chip-dot"></span>Docker &amp; Containers</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1062,14 +1260,16 @@
           <a href="https://github.com/akbudakanl/cross-authorized-backup" target="_blank" rel="noopener">
             <span class="project-text">
               <span class="project-title"><span class="project-icon">🛡️</span>Cross Authorized Backup</span>
-              <span class="project-desc" data-i18n="proj1Desc">A zero-trust, multi-layered personal backup architecture — covering virtualization-based isolated backup systems on self-hosted servers and secure cross-authorized access policies for cloud backup services.</span>
+              <span class="project-desc" data-i18n="proj1Desc">A zero-trust backup architecture built on the cross-authorization requirement between devices — isolated MicroVM disks for self-hosted servers and strict IAM policies for cloud platforms; data is stored only as ciphertext.</span>
               <span class="project-tags">
                 <span class="project-tag">zero-trust</span>
-                <span class="project-tag">backup</span>
+                <span class="project-tag">firecracker</span>
+                <span class="project-tag">restic</span>
+                <span class="project-tag">aws</span>
+                <span class="project-tag">tailscale</span>
                 <span class="project-tag">self-hosted</span>
                 <span class="project-tag" data-i18n="cryptoTag">cryptography</span>
               </span>
-              <span class="project-meta" id="repoMeta" data-repo="akbudakanl/cross-authorized-backup" aria-live="polite"></span>
               <div class="status-bar">
                 <span class="status-dot"></span>
                 <span data-i18n="status">Open to collaboration</span>
@@ -1119,7 +1319,7 @@
       <ul class="gh-issues reveal reveal-d5" id="ghIssuesList" aria-live="polite"></ul>
 
       <!-- hidden helper elements (kept for JS compat) -->
-      <p class="gh-stats" id="ghProfileStats"></p>
+      <p class="gh-stats" id="ghProfileStats" data-repo="akbudakanl/cross-authorized-backup"></p>
       <p class="gh-stats" id="ghCommitStats"></p>
     </section>
 
@@ -1134,7 +1334,7 @@
 
         <div class="secure-badges">
           <!-- Security Email button: clean pill, no label text -->
-          <a class="badge-btn badge-btn--security" href="mailto:security.unplanned639@passinbox.com">
+          <a class="badge-btn badge-btn--email" href="mailto:security.unplanned639@passinbox.com">
             <!-- envelope icon -->
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
             <span>Email</span>
@@ -1170,11 +1370,11 @@
         <p class="contact-group-title" data-i18n="contactCasualTitle">For everything else</p>
         <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-muted);" data-i18n="contactCasualDesc">GitHub discussions, issues, or Instagram DM are fine.</p>
         <div class="contact-links">
-          <a class="contact-link" href="https://github.com/akbudakanl" target="_blank" rel="noopener">
+          <a class="contact-link contact-link--github" href="https://github.com/akbudakanl" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
             GitHub
           </a>
-          <a class="contact-link" href="https://instagram.com/akbudakanl" target="_blank" rel="noopener">
+          <a class="contact-link contact-link--instagram" href="https://instagram.com/akbudakanl" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
             Instagram
           </a>
@@ -1200,22 +1400,24 @@
       en: {
         role:             'Cloud Security &amp; Platform Engineering',
         heroLine:         '',
-        ctaProjects:      'View Projects',
-        ctaContact:       'Get in Touch',
+        ctaProjects:      'Projects',
+        ctaContact:       'Contact',
         status:           'Open to collaboration',
         tagAbout:         '// introduction',
-        h2About:          'Hello 👋',
-        aboutText:        'Hi, I\'m Anıl! I work on the security of cloud systems and server infrastructure, advancing in the field of Platform Engineering. Through my personal projects, I build reference implementations grounded in zero-trust architecture — multi-layered, auditable systems designed to withstand real-world threat models.',
+        h2About:          'Hello <svg class="h2-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5 13.8 8.7 20 10 13.8 11.3 12 17.5 10.2 11.3 4 10l6.2-1.3z"/></svg>',
+        aboutText:        'Hi, I\'m Anıl! I work on the security of cloud systems and server infrastructure, developing toward platform engineering. In my personal projects, I build multi-layered systems grounded in zero-trust principles, aiming to develop example defense systems against current cyber threats.',
         tagSkills:        '// skills &amp; interests',
         h2Skills:         'Skills &amp; Interests',
         tagProjects:      '// projects',
         h2Projects:       'Projects',
-        proj1Desc:        'A zero-trust, multi-layered personal backup architecture — covering virtualization-based isolated backup systems on self-hosted servers and secure cross-authorized access policies for cloud backup services.',
+        proj1Desc:        'A zero-trust backup architecture built on the cross-authorization requirement between devices — isolated MicroVM disks for self-hosted servers and strict IAM policies for cloud platforms; data is stored only as ciphertext.',
+        skAppliedLabel:   '<b>hands-on</b>',
+        skStudyLabel:     '<b>in progress</b>:',
         tagGithub:        '// github',
         h2Github:         'GitHub Activity',
         ghLabelIssues:    'Issues',
         ghLabelRepos:     'Public Repos',
-        ghLabelCommits:   'Commits',
+        ghLabelCommits:   'Commits · #1 repo',
         ghHeatmapLabel:   'Recent contributions',
         ghLangLabel:      'Top Languages',
         tagContact:       '// contact',
@@ -1228,7 +1430,7 @@
         contactCasualDesc:  'GitHub discussions, issues, or Instagram DM are fine.',
         cryptoTag:        'cryptography',
         privacyLink:      'privacy &amp; security policy',
-        privacyText:      '<strong>Your privacy is valuable</strong><br><br>Your privacy is protected at the highest level when you visit this site. As a platform engineer and cybersecurity researcher, respecting your privacy and processing your data solely to maintain and protect the system is my fundamental principle.<br><br><strong>Data is not sold or shared</strong><br><br>No technical data collected on this site is ever sold to third parties or organizations, shared for commercial purposes, or examined in any way other than for cybersecurity analysis (e.g., no advertising, marketing, targeting, or user profiling). Any queries or investigations conducted for security purposes will strictly be carried out with the knowledge of the users.<br><br><strong>Governance &amp; Logging Policies</strong><br><br>To ensure the integrity of the site and underlying infrastructure, prevent botnet attacks, and detect anomalous network traffic, the technical device information (User-Agent) and IP address are logged. In strict accordance with the data minimization principles of the GDPR, these logs are securely stored on the Cloudflare KV database for a maximum of 1 year (365 days). After this period, they are automatically and permanently destroyed. The cookies utilized by the system (Strictly Necessary Security Cookies) fall strictly under the category of essential cookies required solely for network security and anomaly detection, and they do not perform any personal tracking on your device.',
+        privacyText:      '<strong>Your privacy is valuable</strong><br><br>User data is not processed in any way unless the security of the site is compromised.<br><br><strong>Data is not sold or shared</strong><br><br>No technical data collected on this site is ever sold to third parties or organizations, shared for commercial purposes, or examined in any way other than for cybersecurity analysis (e.g., no advertising, marketing, targeting, or user profiling).<br><br><strong>Governance &amp; Data Retention Policies</strong><br><br>To ensure the integrity of the site and underlying infrastructure, prevent botnet attacks, and detect anomalous network traffic, the technical device information (User-Agent) and IP address are logged. In strict accordance with the data minimization principles of the GDPR, these logs are securely stored on the Cloudflare KV database for a maximum of 1 year (365 days). After this period, they are automatically and permanently destroyed. The cookies utilized by the system (Strictly Necessary Security Cookies) fall strictly under the category of essential cookies required solely for network security and anomaly detection, and they do not perform any personal tracking on your device.',
         toggleDark:       'dark',
         toggleLight:      'light',
         copySuccess:      'Copied ✓',
@@ -1248,22 +1450,24 @@
       tr: {
         role:             'Bulut Güvenliği ve Platform Mühendisliği',
         heroLine:         '',
-        ctaProjects:      'Projelere göz at',
-        ctaContact:       'İletişime geç',
+        ctaProjects:      'Projeler',
+        ctaContact:       'İletişim',
         status:           'İş birliğine açık',
         tagAbout:         '// tanışma',
-        h2About:          'Merhaba 👋',
-        aboutText:        'Selam! Ben Anıl. Bulut sistemleri ve sunucu altyapılarının güvenliği üzerine çalışıyor, Platform Mühendisliği alanında ilerliyorum. Kişisel projelerimde sıfır güven mimarisi ilkelerine dayalı, çok katmanlı ve denetlenebilir sistemler geliştirerek bu alanda örnek projeler üretmeye çalışıyorum.',
+        h2About:          'Merhaba <svg class="h2-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5 13.8 8.7 20 10 13.8 11.3 12 17.5 10.2 11.3 4 10l6.2-1.3z"/></svg>',
+        aboutText:        'Selam! Ben Anıl. Bulut sistemlerinin ve sunucu altyapılarının güvenliği üzerine çalışıyor, platform mühendisliği alanında kendimi geliştiriyorum. Kişisel projelerimde sıfır-güven ilkelerine dayalı çok katmanlı sistemler kurarak güncel siber tehditlere karşı örnek savunma sistemleri geliştirmeye çalışıyorum.',
         tagSkills:        '// yetenekler ve ilgi alanları',
         h2Skills:         'Yetenekler ve İlgi Alanları',
         tagProjects:      '// projeler',
         h2Projects:       'Projeler',
-        proj1Desc:        'Sıfır güven ilkesiyle kurulmuş, çok katmanlı kişisel yedekleme mimarisi — self-host sunucularda sanallaştırma tabanlı izole yedekleme sistemleri ve bulut yedekleme hizmetleri için güvenli çapraz yetkili erişim politikaları.',
+        proj1Desc:        'Cihazlar arasında çapraz yetki gereksinimi ilkesiyle çalışan, sıfır-güven odaklı yedekleme mimarisi. Barındırılan sunucular için izole MicroVM diskleri ve bulut platformları için sıkı IAM politikası; veriler yalnızca şifrelenmiş olarak saklanır.',
+        skAppliedLabel:   '<b>uygulamalı</b>',
+        skStudyLabel:     '<b>gelişmekte</b>:',
         tagGithub:        '// github',
         h2Github:         'GitHub Aktivitesi',
         ghLabelIssues:    'Açılan Issue',
         ghLabelRepos:     'Public Repo',
-        ghLabelCommits:   'Commit',
+        ghLabelCommits:   'Commit · #1 repo',
         ghHeatmapLabel:   'Son katkılar',
         ghLangLabel:      'En Çok Kullanılan Diller',
         tagContact:       '// iletişim',
@@ -1276,7 +1480,7 @@
         contactCasualDesc:  'GitHub tartışmaları, issue\'lar veya Instagram DM üzerinden ulaşabilirsiniz.',
         cryptoTag:        'kriptografi',
         privacyLink:      'gizlilik ve güvenlik politikası',
-        privacyText:      '<strong>Mahremiyetiniz değerlidir</strong><br><br>Bu siteyi ziyaret ettiğinizde gizliliğiniz en üst düzeyde korunmaktadır. Bir platform mühendisi ve siber güvenlik araştırmacısı olarak, mahremiyetinize saygı duymak ve verilerinizi yalnızca sistemi ayakta tutmak ve korumak amacıyla işlemek en temel prensibimdir.<br><br><strong>Verileriniz satılmaz veya paylaşılmaz</strong><br><br>Bu sitede toplanan hiçbir teknik veri asla üçüncü şahıslara veya kurumlara satılmaz, ticari bir amaçla paylaşılmaz ve siber güvenlik analizleri haricinde hiçbir şekilde (örneğin reklam, pazarlama, hedefleme veya kullanıcı profili oluşturma) incelenemez. Güvenlik amacıyla yapılacak olası sorgulamalar veya incelemeler mutlaka kullanıcıların bilgisi dâhilinde gerçekleştirilecektir.<br><br><strong>Yönetişim ve Loglama Politikaları</strong><br><br>Sitenin ve arka plandaki altyapıların bütünlüğünü sağlamak, botnet saldırılarını engellemek ve olağandışı ağ trafiğini tespit etmek amacıyla, ziyaretçilerin IP adresleri ve tarayıcı tarafından iletilen cihaz bilgileri (User-Agent) loglanmaktadır. Bu kayıtlar, KVKK ve GDPR\'ın veri minimizasyonu ilkeleri doğrultusunda Cloudflare KV veritabanı üzerinde güvenli bir şekilde saklanmakta olup, en fazla 1 yıl (365 gün) süreyle tutulduktan sonra sistem tarafından otomatik ve kalıcı olarak imha edilmektedir. Sistemin kullandığı çerezler (Strictly Necessary Security Cookies), yalnızca ağ güvenliği ile anomali tespiti için gerekli olan "Zorunlu Çerezler" statüsündedir ve cihazınızda herhangi bir kişisel izleme yapmaz.',
+        privacyText:      '<strong>Mahremiyetiniz değerlidir</strong><br><br>Kullanıcılara ait veriler, sitenin güvenliği ihlal edilmedikçe herhangi bir şekilde işlenmemektedir.<br><br><strong>Verileriniz satılmaz veya paylaşılmaz</strong><br><br>Bu sitede toplanan hiçbir teknik veri asla üçüncü şahıslara veya kurumlara satılmaz, ticari bir amaçla paylaşılmaz ve siber güvenlik analizleri haricinde hiçbir şekilde (örneğin reklam, pazarlama, hedefleme veya kullanıcı profili oluşturma) incelenemez.<br><br><strong>Yönetim ve Veri Saklama Politikaları</strong><br><br>Sitenin ve arka plandaki altyapıların bütünlüğünü sağlamak, botnet saldırılarını engellemek ve olağandışı ağ trafiğini tespit etmek amacıyla, ziyaretçilerin IP adresleri ve tarayıcı tarafından iletilen cihaz bilgileri (User-Agent) kayıt altına alınmaktadır. Bu kayıtlar, KVKK ve GDPR\'ın veri minimizasyonu ilkeleri doğrultusunda Cloudflare KV veritabanı üzerinde güvenli bir şekilde saklanmakta olup, en fazla 1 yıl (365 gün) süreyle tutulduktan sonra sistem tarafından otomatik ve kalıcı olarak imha edilmektedir. Sistemin kullandığı çerezler (Strictly Necessary Security Cookies), yalnızca ağ güvenliği ile anomali tespiti için gerekli olan "Zorunlu Çerezler" statüsündedir ve cihazınızda herhangi bir kişisel izleme yapmaz.',
         toggleDark:       'koyu',
         toggleLight:      'açık',
         copySuccess:      'Kopyalandı ✓',
@@ -1297,35 +1501,9 @@
     var currentLang = localStorage.getItem('lang') || 'en';
 
     // GitHub live-data state — filled in by the fetches further down
-    var commitData = null;      // { message, days, url }
-    var profileData = null;     // { followers, following, publicRepos }
+    var profileData = null;     // { publicRepos }
     var commitCountData = null; // integer
     var issuesData = null;      // { total, items: [{ title, html_url, created_at, repo }] }
-
-    function formatRelative(days, lang) {
-      if (days < 1) return lang === 'tr' ? 'bugün' : 'today';
-      if (days < 30) {
-        return lang === 'tr' ? (days + ' gün önce') : (days + ' day' + (days === 1 ? '' : 's') + ' ago');
-      }
-      var months = Math.floor(days / 30);
-      if (months < 12) {
-        return lang === 'tr' ? (months + ' ay önce') : (months + ' month' + (months === 1 ? '' : 's') + ' ago');
-      }
-      var years = Math.floor(days / 365);
-      return lang === 'tr' ? (years + ' yıl önce') : (years + ' year' + (years === 1 ? '' : 's') + ' ago');
-    }
-
-    function renderCommitMeta() {
-      var el = document.getElementById('repoMeta');
-      if (!el || !commitData) return;
-      el.innerHTML = '';
-      var link = document.createElement('a');
-      link.href = commitData.url;
-      link.target = '_blank';
-      link.rel = 'noopener';
-      link.textContent = '"' + commitData.message + '"';
-      el.appendChild(link);
-    }
 
     function renderProfileStats() {
       if (!profileData) return;
@@ -1359,27 +1537,36 @@
       });
     }
 
+    // Cached so the bar can re-render with fresh theme colors on toggle
+    var cachedLangCounts = null;
+    var cachedLangTotal = 0;
+
     function buildLanguageBar(counts, total) {
+      cachedLangCounts = counts;
+      cachedLangTotal = total;
       var bar = document.getElementById('ghLangBar');
       var legend = document.getElementById('ghLangLegend');
       if (!bar || !legend || total === 0) return;
-      
-      var colors = {
-        'JavaScript': '#f1e05a', 'TypeScript': '#3178c6', 'Python': '#3572A5',
-        'HTML': '#e34c26', 'CSS': '#563d7c', 'Shell': '#89e051',
-        'Go': '#00ADD8', 'Java': '#b07219', 'C++': '#f34b7d', 'C': '#555555',
-        'Rust': '#dea584', 'Ruby': '#701516', 'PHP': '#4F5D95', 'C#': '#178600'
-      };
-      var defaultColor = '#8b9daf';
-      
+
+      // Tema uyumlu palet: CSS değişkenlerinden okunur (--l1..--l5),
+      // böylece dark/light modlarında otomatik uyum sağlar.
+      var cs = getComputedStyle(document.documentElement);
+      function lc(i) { return cs.getPropertyValue('--l' + i).trim() || '#8b9daf'; }
+      var helperColor = cs.getPropertyValue('--helper').trim() || '#34D399';
+
       var sorted = Object.keys(counts).sort(function(a,b){ return counts[b] - counts[a]; }).slice(0, 5);
-      
+
       var barHtml = '';
       var legendHtml = '';
-      
-      sorted.forEach(function (lang) {
+
+      var langOverride = {
+        'HTML': helperColor,
+        'Go': cs.getPropertyValue('--accent').trim() || '#38BDF8'
+      };
+
+      sorted.forEach(function (lang, idx) {
         var pct = ((counts[lang] / total) * 100).toFixed(1);
-        var color = colors[lang] || defaultColor;
+        var color = langOverride.hasOwnProperty(lang) ? langOverride[lang] : ((idx === sorted.length - 1) ? helperColor : lc(idx + 1));
         barHtml += '<div class="gh-lang-segment" style="width:' + pct + '%; background:' + color + ';" title="' + lang + ' ' + pct + '%"></div>';
         legendHtml += '<div class="gh-lang-item"><span class="gh-lang-dot" style="background:' + color + ';"></span>' + lang + ' (' + pct + '%)</div>';
       });
@@ -1456,7 +1643,6 @@
       if (lbl) lbl.textContent = isDark ? t.toggleDark : t.toggleLight;
 
       // Update live GitHub data lines (language-aware)
-      renderCommitMeta();
       renderProfileStats();
       renderCommitCount();
       renderIssuesList();
@@ -1491,15 +1677,38 @@
     function syncLabel() {
       var t = translations[currentLang] || translations.en;
       var isDark = root.dataset.theme === 'dark';
-      label.textContent = isDark ? t.toggleDark : t.toggleLight;
+      if (label) label.textContent = isDark ? t.toggleDark : t.toggleLight;
       toggle.setAttribute('aria-pressed', String(!isDark));
+      // ikon-only mod: erişilebilirlik için aria-label güncelle
+      toggle.setAttribute('aria-label', isDark ? t.toggleLight : t.toggleDark);
     }
     syncLabel();
 
     toggle.addEventListener('click', function () {
       root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
       syncLabel();
+      // Re-render language colors so they adapt to the new theme instantly
+      if (cachedLangCounts) {
+        buildLanguageBar(cachedLangCounts, cachedLangTotal);
+      }
     });
+
+    // Kullanıcı açık bir tercih kaydetmediyse OS tema değişikliklerini canlı takip et
+    if (window.matchMedia) {
+      var mq = window.matchMedia('(prefers-color-scheme: light)');
+      var onOsThemeChange = function (e) {
+        var stored = null;
+        try { stored = localStorage.getItem('theme'); } catch (err) {}
+        if (stored !== 'light' && stored !== 'dark') {
+          root.dataset.theme = e.matches ? 'light' : 'dark';
+          syncLabel();
+          if (cachedLangCounts) buildLanguageBar(cachedLangCounts, cachedLangTotal);
+        }
+      };
+      if (mq.addEventListener) mq.addEventListener('change', onOsThemeChange);
+      else if (mq.addListener) mq.addListener(onOsThemeChange); // eski Safari
+    }
 
     // ============================
     // Year
@@ -1507,23 +1716,115 @@
     document.getElementById('year').textContent = new Date().getFullYear();
 
     // ============================
-    // Typing animation
+    // Terminal & Hero Sequence Animation
     // ============================
     (function () {
-      var el = document.getElementById('typedCmd');
-      var text = 'whoami';
-      var i = 0;
+      var cmdEl = document.getElementById('typedCmd');
+      var nameEl = document.getElementById('typedName');
+      var roleEl = document.getElementById('roleLine');
+      var ctaEl = document.getElementById('heroCta');
       
+      var cmdText = 'whoami';
+      var fullName = 'Anıl Akbudak';
+      var chars = '!<>-_\\/[]{}—=+*^?#________';
 
+      // Erişilebilirlik: Düşük hareket modu açıksa animasyonsuz anında göster
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (cmdEl) cmdEl.textContent = cmdText;
+        if (nameEl) { nameEl.textContent = fullName; nameEl.classList.add('visible'); }
+        if (roleEl) roleEl.classList.add('visible');
+        if (ctaEl) ctaEl.classList.add('visible');
+        return;
+      }
 
-      function type() {
-        if (i <= text.length) {
-          el.textContent = text.slice(0, i);
+      var i = 0;
+
+      // 1. ADIM: "whoami" komutu doğal yazma hızında yazılır
+      function typeCommand() {
+        if (i <= cmdText.length) {
+          cmdEl.textContent = cmdText.slice(0, i);
           i++;
-          setTimeout(type, 100 + Math.random() * 60);
+          setTimeout(typeCommand, 110 + Math.random() * 50);
+        } else {
+          // Komut bitti, imleci sabit tut ve 280ms bekle (Terminal işleme hissi)
+          cmdEl.classList.add('done');
+          setTimeout(revealHeroSequence, 280);
         }
       }
-      setTimeout(type, 600);
+
+      // 2. ADIM: İsim siber güvenlik temasına uygun şekilde çözülerek belirir
+      function revealHeroSequence() {
+        nameEl.classList.add('visible');
+        var iteration = 0;
+        var totalIterations = fullName.length;
+
+        var scrambleInterval = setInterval(function () {
+          nameEl.innerText = fullName
+            .split('')
+            .map(function (letter, index) {
+              if (index < iteration) {
+                return fullName[index];
+              }
+              if (letter === ' ') return ' ';
+              return chars[Math.floor(Math.random() * chars.length)];
+            })
+            .join('');
+
+          if (iteration >= totalIterations) {
+            clearInterval(scrambleInterval);
+            nameEl.innerText = fullName; // Temiz son metin garantisi
+
+            // 3. ADIM: İsim oturduktan 220ms sonra ünvan açılır
+            setTimeout(function () {
+              if (roleEl) roleEl.classList.add('visible');
+
+              // 4. ADIM: Ünvandan 200ms sonra CTA butonları sahneye girer
+              setTimeout(function () {
+                if (ctaEl) ctaEl.classList.add('visible');
+              }, 200);
+
+            }, 220);
+          }
+
+          iteration += 1 / 2; // Hız katsayısı: Çok uzatmadan 200-250ms içinde tamamlar
+        }, 30);
+      }
+
+      // DOM hazır olur olmaz başlat (load'u beklemeden — yavaş ağda 1-2sn kazandırır)
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(typeCommand, 200); });
+      } else {
+        setTimeout(typeCommand, 200);
+      }
+    })();
+
+    // ============================
+    // Click-to-copy PGP fingerprint
+    // ============================
+    (function () {
+      var fp = document.querySelector('.pgp-fingerprint');
+      if (!fp) return;
+      fp.classList.add('copyable');
+      fp.title = 'Copy to clipboard';
+      fp.addEventListener('click', function () {
+        var value = (fp.textContent || '').replace(/\s+/g, '');
+        function done() {
+          var t = translations[currentLang] || translations.en;
+          var prev = fp.textContent;
+          fp.textContent = t.copySuccess;
+          setTimeout(function () { fp.textContent = prev; }, 1500);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(value).then(done, function () {});
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = value;
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); done(); } catch (e) {}
+          document.body.removeChild(ta);
+        }
+      });
     })();
 
     // ============================
@@ -1547,6 +1848,32 @@
       }
     })();
 
+    // ============================
+    // Yumusak kaydirma (CTA anchor'lari)
+    // ============================
+    function smoothScrollTo(target) {
+      var startY = window.pageYOffset;
+      var endY = target.getBoundingClientRect().top + startY;
+      var duration = 700;
+      var start = null;
+      function stepFn(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / duration, 1);
+        var eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        window.scrollTo(0, startY + (endY - startY) * eased);
+        if (p < 1) requestAnimationFrame(stepFn);
+      }
+      requestAnimationFrame(stepFn);
+    }
+    document.querySelectorAll('a.cta[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          smoothScrollTo(target);
+        }
+      });
+    });
     // ============================
     // Scroll reveal
     // ============================
@@ -1574,7 +1901,7 @@
     // Live GitHub data (unauthenticated public API — each call fails independently)
     // ============================
     (function () {
-      var repoMetaEl = document.getElementById('repoMeta');
+      var repoMetaEl = document.getElementById('ghProfileStats');
       var GH_REPO = repoMetaEl ? repoMetaEl.getAttribute('data-repo') : null;
       var GH_USER = GH_REPO ? GH_REPO.split('/')[0] : null;
       if (!GH_REPO || !GH_USER) return;
@@ -1588,17 +1915,6 @@
         })
         .then(function (result) {
           var data = result.data;
-          if (data && data[0]) {
-            var commit = data[0];
-            var date = new Date(commit.commit.author.date);
-            var days = Math.floor((Date.now() - date.getTime()) / 86400000);
-            commitData = {
-              message: commit.commit.message.split('\n')[0],
-              days: days,
-              url: commit.html_url
-            };
-            renderCommitMeta();
-          }
           var total = data ? data.length : 0;
           if (result.linkHeader) {
             var match = result.linkHeader.match(/[?&]page=(\d+)>;\s*rel="last"/);
