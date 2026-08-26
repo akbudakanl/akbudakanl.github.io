@@ -147,16 +147,16 @@
 
   /* ========================================
      SCROLL ANIMATIONS — HEADING-ONLY
-     Bölüm içerikleri whoami sonrası toplu açılışa kadar gizlidir;
-     açılışta HAREKETSİZ, anında görünür olurlar.
-     Tek animasyonlu öğe başlıktır (maskeli süzülme):
-     - Tüm başlıklar eşzamanlı maskeli süzülme animasyonuyla
-       açılır (.mask-in).
-     - Reduced motion ise animasyonsuz (.mask-instant).
+     Section contents remain hidden until the post-whoami bulk reveal;
+     at reveal they appear INSTANTLY, without animation.
+     The only animated element is the heading (masked slide-in):
+     - All headings reveal simultaneously with a masked slide-in animation
+       (.mask-in).
+     - Reduced motion uses no animation (.mask-instant).
      ======================================== */
   .reveal-group > * {
     opacity: 0;
-    /* Görünür olmadan önce tıklama/hover almasın */
+    /* Prevent clicks/hover before becoming visible */
     pointer-events: none;
   }
 
@@ -167,14 +167,13 @@
 
   /* ========================================
      HERO → INTRO GATE
-     Introduction bölümü whoami animasyonu bittikten sonra
-     otomatik açılır; scroll ile erken tetiklenmesi de mümkündür.
-     İçerik kaymaz, sadece yumuşakça belirir. Başlık maskeli süzülür.
+     The introduction section opens automatically after the whoami animation
+     completes; early triggering via scroll is also possible.
+     Content does not shift — it simply fades in smoothly. Heading slides in with a mask.
      ======================================== */
 
-  /* Ayırıcı çizgi hero'nun altında kalıcıdır; #about gizliyken
-     bile görünür (#about'ın kendi border-top'ı kapatılır ki gate
-     açılınca çift çizgi oluşmasın). */
+  /* The separator line below the hero is permanent; visible even when #about is hidden
+     (#about's own border-top is removed to prevent a double line when the gate opens). */
   .hero {
     border-bottom: 1px solid var(--rule);
   }
@@ -207,8 +206,8 @@
      ======================================== */
   /* ========================================
      APPLE-STYLE MASKED HEADING REVEAL
-     Başlıklar aşağıdan yukarı süzülerek ve
-     bulanıktan netleşerek yüklenir.
+     Headings slide in from bottom to top and
+     transition from blurred to sharp.
      ======================================== */
   .mask-reveal {
     overflow: hidden;
@@ -217,8 +216,8 @@
   .mask-reveal h2 {
     transform: translateY(110%);
     filter: blur(8px);
-    /* Blur saçılması sarmalayıcı içine taşıp "iz" bırakmasın:
-       animasyona kadar tamamen görünmez */
+    /* Prevent blur from leaking outside the wrapper and leaving a "trail":
+       completely invisible until animation starts */
     opacity: 0;
     will-change: transform, filter, opacity;
   }
@@ -229,7 +228,7 @@
     opacity: 1;
   }
 
-  /* Toplu açılış anında ekranda olan başlıklar için animasyon yok */
+  /* No animation for headings already on screen at the time of the bulk reveal */
   .mask-reveal.mask-in.mask-instant h2 {
     transition: none;
   }
@@ -253,7 +252,7 @@
     letter-spacing: 0.02em;
     color: var(--accent2);
     margin-bottom: 1rem;
-    /* Beyaz zeminde ezilmesini önlemek için hafif et payı */
+    /* Slight weight boost to prevent it from looking washed out on white backgrounds */
     font-weight: 500;
   }
 
@@ -276,7 +275,7 @@
     transform: scale(0.35);
   }
 
-  /* Yıldız ikonu, intro gate'i açıldığında selamlaşma animasyonuyla girer */
+  /* The star icon enters with a greeting animation when the intro gate opens */
   @media (prefers-reduced-motion: no-preference) {
     #about.about-open .h2-icon {
       animation: icon-greet 2.6s linear 0.4s both;
@@ -394,15 +393,15 @@
     min-height: 1.1em; /* Prevents page jump before the name is typed */
   }
 
-  /* Optik lens netleşmesi (masked aperture):
-     isim bulanıktan odaklanarak gelir, harf aralığı
-     sıkışıktan doğal haline toparlanır */
+  /* Optical lens focus effect (masked aperture):
+     the name comes in from blur to sharp focus, and letter-spacing
+     settles from compressed to its natural value */
   #typedName {
     display: inline-block;
     opacity: 0;
     transform: translateY(20px) scale(0.98);
     filter: blur(8px);
-    letter-spacing: -0.05em; /* Başta sıkışık */
+    letter-spacing: -0.05em; /* Initially compressed */
     will-change: transform, filter, opacity, letter-spacing;
     transition:
       opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
@@ -415,7 +414,7 @@
     opacity: 1;
     transform: translateY(0) scale(1);
     filter: blur(0);
-    letter-spacing: -0.03em; /* Kendi doğal aralığına oturur */
+    letter-spacing: -0.03em; /* Settles into its natural spacing */
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -456,8 +455,7 @@
     flex-wrap: wrap;
     opacity: 0;
     transform: translateY(10px);
-    /* Animasyondan önce görünmez amaçla üzerine gelinse bile
-       hover/tıklama almasın */
+    /* Invisible before animation — prevent hover/click even if hovered */
     pointer-events: none;
     transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
                 transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -549,7 +547,7 @@
     color: var(--helper); /* Green: Active study */
   }
 
-  /* hands-on / in-progress etiketleri: aşırı kalınlaşmayı yumuşat */
+  /* hands-on / in-progress labels: soften excessive bold weight */
   .sk-label b {
     font-weight: 600;
   }
@@ -1106,21 +1104,21 @@
     user-select: all;
   }
 
-  /* Parmak izi iki simetrik blok halinde: dar ekranda ikinci blok
-     tam olarak 5 parçada alta iner (5+5) ve satır başından başlar;
-     geniş ekranda tek satır */
+  /* Fingerprint split into two symmetric blocks: on narrow screens the second block
+     wraps cleanly to a new line starting at 5+5 chunks;
+     on wide screens it stays on a single line */
   .pgp-fingerprint .fp-row {
     white-space: nowrap;
   }
 
-  /* "Copied" gösterilirken kutu boyutu korunur ve metin ortalanır */
+  /* While "Copied" is shown, preserve the box size and center the text */
   .pgp-fingerprint.copied {
     justify-content: center;
     text-align: center;
   }
 
-  /* Fingerprint etiketi ile kutu arası, NOTE başlığı ile paragraf
-     arasındaki mesafenin aynısıdır */
+  /* Spacing between fingerprint label and box matches the spacing between
+     the NOTE heading and its paragraph */
   .pgp-note .fp-label {
     display: block;
     margin-bottom: 0.6rem;
@@ -1257,8 +1255,8 @@
      ======================================== */
   /* Top-right controls (language + theme) in one flex container — always aligned */
    .top-controls {
-    /* THEME & LANG TOGGLE SARMALAYICISI */
-    position: absolute; /* fixed yerine absolute yapıldı */
+    /* THEME & LANG TOGGLE WRAPPER */
+    position: absolute; /* changed from fixed to absolute */
     top: 1.5rem;
     right: 1.5rem;
     display: flex;
@@ -1976,8 +1974,8 @@
           setTimeout(function () {
             if (ctaEl) ctaEl.classList.add('visible');
 
-            // STEP 5: whoami animasyonu tamamlandıktan sonra tüm
-            // içerik bütün olarak yüklenir
+            // STEP 5: after the whoami animation completes,
+            // all content is loaded at once
             setTimeout(function () {
               if (window.revealAllContent) window.revealAllContent();
             }, 450);
@@ -2007,7 +2005,7 @@
         var value = (fp.textContent || '').replace(/\s+/g, '');
         function done() {
           var t = translations[currentLang] || translations.en;
-          // Kutu kısalmasın: mevcut genişliği minimum olarak kilitle
+          // Prevent box from shrinking: lock current width as minimum
           if (!fp.style.minWidth) {
             fp.style.minWidth = fp.offsetWidth + 'px';
             fp.style.boxSizing = 'border-box';
@@ -2020,9 +2018,9 @@
             fp.classList.remove('copied');
           }, 1500);
         }
-        // Android/iOS dahil tüm platformlarda "Copied ✓" geri bildirimi
-        // garantilenir: Async Clipboard API reddederse execCommand
-        // fallback'i çalışır ve done() mutlaka tetiklenir.
+        // Guarantees "Copied ✓" feedback on all platforms including Android/iOS:
+        // if the Async Clipboard API is rejected, the execCommand fallback runs
+        // and done() is always triggered.
         function legacyCopy() {
           var ta = document.createElement('textarea');
           ta.value = value;
@@ -2092,9 +2090,9 @@
     });
     // ============================
     // WHOLE-PAGE REVEAL + HEADING ANIMATIONS
-    // Whoami animasyonu bittikten sonra tüm içerik bütün olarak
-    // görünür olur. Tüm başlıklar eşzamanlı maskeli süzülme
-    // animasyonuyla açılır.
+    // After the whoami animation finishes, all content becomes visible at once.
+    // All headings reveal simultaneously with a synchronized masked slide-in
+    // animation.
     // ============================
     var contentRevealed = false;
 
@@ -2102,7 +2100,7 @@
       if (contentRevealed) return;
       contentRevealed = true;
 
-      // Tüm bölüm içerikleri ve intro, bütün olarak anında görünür olur
+      // All section contents and intro become instantly visible at once
       document.querySelectorAll('.reveal-group').forEach(function (el) {
         el.classList.add('visible');
       });
@@ -2114,7 +2112,7 @@
           m.classList.add('mask-in', 'mask-instant');
         });
       } else {
-        // Tüm başlıklar eşzamanlı — skills/hello farkı olmadan aynı anda
+        // All headings simultaneously — no distinction between skills/hello sections
         document.querySelectorAll('.mask-reveal').forEach(function (m) {
           m.classList.add('mask-in');
         });
@@ -2123,8 +2121,8 @@
 
     window.revealAllContent = revealAllContent;
 
-    // Reduced motion tercihinde whoami beklemeden her şey
-    // animasyonsuz ve anında gösterilir.
+    // With reduced-motion preference, everything is shown instantly
+    // without animation, without waiting for the whoami sequence.
     (function () {
       var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReduced) {
