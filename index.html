@@ -456,8 +456,8 @@
     box-shadow: 0 0 8px var(--helper);
   }
 
-  /* Telefon genişliğinde tek sütun; bilgisayarda 3x2 / 2x2 izgara */
-  @media (max-width: 500px) {
+  /* Telefon/tablet dar modda tek sütun; 600px üstünde 2 sütunlu izgara */
+  @media (max-width: 600px) {
     .skill-grid { grid-template-columns: 1fr; }
   }
 
@@ -746,9 +746,9 @@
     color: var(--text-muted);
   }
 
-  /* Istatistik kartlari telefonda da tek satirda 3 sutun kalir;
-     dar ekranda kart ici bosluklar kisaltilir */
-  @media (max-width: 500px) {
+  /* Istatistik kartlari telefonda/tablette de tek satirda 3 sutun kalir;
+     dar ekranda (<=600px) kart ici bosluklar kisaltilir */
+  @media (max-width: 600px) {
     .gh-stat-card { padding: 0.85rem 0.75rem; }
     .gh-stat-value { font-size: 1.15rem; }
   }
