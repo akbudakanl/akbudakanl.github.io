@@ -147,11 +147,12 @@
 
   /* ========================================
      SCROLL ANIMATIONS — HEADING-ONLY
-     Bölüm içerikleri bölüm tetiklenene kadar gizlidir;
-     tetiklendiğinde HAREKETSİZ, anında görünür olur.
-     Tek animasyonlu öğe başlıktır (maskeli süzülme).
-     .reveal-group sınıfı hem içerik görünürlüğünü hem de
-     başlık animasyonunun tetikleyicisini yönetir.
+     Bölüm içerikleri whoami sonrası toplu açılışa kadar gizlidir;
+     açılışta HAREKETSİZ, anında görünür olurlar.
+     Tek animasyonlu öğe başlıktır (maskeli süzülme):
+     - Tüm başlıklar eşzamanlı maskeli süzülme animasyonuyla
+       açılır (.mask-in).
+     - Reduced motion ise animasyonsuz (.mask-instant).
      ======================================== */
   .reveal-group > * {
     opacity: 0;
@@ -189,12 +190,6 @@
     visibility: visible;
   }
 
-  /* Hızlı kaydırmada intro animasyonsuz, anında görünür */
-  #about.about-instant,
-  #about.about-instant.about-open {
-    transition: none;
-  }
-
   @media (prefers-reduced-motion: no-preference) {
     #about {
       transition: opacity 0.45s ease,
@@ -228,11 +223,15 @@
     will-change: transform, filter, opacity;
   }
 
-  .reveal-group.visible .mask-reveal h2,
-  #about.about-open .mask-reveal h2 {
+  .mask-reveal.mask-in h2 {
     transform: translateY(0);
     filter: blur(0);
     opacity: 1;
+  }
+
+  /* Toplu açılış anında ekranda olan başlıklar için animasyon yok */
+  .mask-reveal.mask-in.mask-instant h2 {
+    transition: none;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -1977,10 +1976,10 @@
           setTimeout(function () {
             if (ctaEl) ctaEl.classList.add('visible');
 
-            // STEP 5: whoami animasyonu tamamlandıktan sonra
-            // introduction bölümü otomatik olarak açılır
+            // STEP 5: whoami animasyonu tamamlandıktan sonra tüm
+            // içerik bütün olarak yüklenir
             setTimeout(function () {
-              if (window.openAboutGate) window.openAboutGate();
+              if (window.revealAllContent) window.revealAllContent();
             }, 450);
 
           }, 200);
@@ -2092,208 +2091,45 @@
       });
     });
     // ============================
-    // Scroll reveal
+    // WHOLE-PAGE REVEAL + HEADING ANIMATIONS
+    // Whoami animasyonu bittikten sonra tüm içerik bütün olarak
+    // görünür olur. Tüm başlıklar eşzamanlı maskeli süzülme
+    // animasyonuyla açılır.
     // ============================
-    /* HIZ FARKINDALIKLI REVEAL:
-       - Intro (introduction) her zaman önce gelir: gate açıldıktan
-         sonra INTRO_SETTLE_MS süresi dolmadan hiçbir bölüm gösterilmez
-         (hızlı kaydırma modunda bile).
-       - Intro oturduktan sonra tüm bölümler viewport'a girdikleri anda
-         açılır; hızlı kaydırmada da akışkanlık bozulmaz. */
-    var aboutGateOpen = false;
-    var aboutGateAt = 0;
-    var aboutGateQueue = [];
-    /* Intro hızlı kaydırmada animasyonsuz açıldıysa bekleme de gerekmez */
-    var introInstant = false;
-    /* Intro'nun açılış animasyonu ~0.9s; tamamlanması için tamponlu süre */
-    var INTRO_SETTLE_MS = 1000;
+    var contentRevealed = false;
 
-    /* --- Kaydırma hızı takibi (px/ms) --- */
-    var FAST_V = 1.4;        // Bu hızın üzerinde: hızlı kaydırma modu
-    var SLOW_V = 0.35;       // Bu hızın altına düşünce sakin moda dönüş
-    var COOLDOWN_MS = 300;   // Moddan çıkmak için gereken sakin süre
-    var fastMode = false;
-    var lastFastAt = 0;
-    var lastY = window.pageYOffset;
-    var lastT = Date.now();
+    function revealAllContent(instantAll) {
+      if (contentRevealed) return;
+      contentRevealed = true;
 
-    function nowMs() {
-      return (window.performance && performance.now) ? performance.now() : Date.now();
-    }
-
-    // Intro oturana kadar kalan süre (pozitifse henüz hazır değil)
-    function introWaitMs() {
-      if (!aboutGateOpen || introInstant) return 0;
-      return INTRO_SETTLE_MS - (Date.now() - aboutGateAt);
-    }
-
-    // Kuyruğu serbest bırak; intro oturmadıysa oturma süresinin
-    // sonuna, sıraya göre planla.
-    function flushGateQueueNow() {
-      if (!aboutGateQueue.length) return;
-      var pending = aboutGateQueue.slice();
-      aboutGateQueue.length = 0;
-      var wait = Math.max(introWaitMs(), 0);
-      pending.forEach(function (fn, i) {
-        if (aboutGateOpen) {
-          setTimeout(fn, wait + i * 150);
-        } else {
-          fn();
-        }
+      // Tüm bölüm içerikleri ve intro, bütün olarak anında görünür olur
+      document.querySelectorAll('.reveal-group').forEach(function (el) {
+        el.classList.add('visible');
       });
-    }
-
-    function updateVelocity() {
-      var t = nowMs();
-      var y = window.pageYOffset;
-      var dt = t - lastT;
-      var v = dt > 0 ? Math.abs(y - lastY) / dt : 0;
-      lastY = y;
-      lastT = t;
-
-      if (v >= FAST_V) {
-        fastMode = true;
-        lastFastAt = t;
-        flushGateQueueNow();
-      } else if (fastMode && v < SLOW_V && t - lastFastAt > COOLDOWN_MS) {
-        fastMode = false;
-      }
-    }
-
-    window.addEventListener('scroll', updateVelocity, { passive: true });
-
-    function aboutGateShow(fn) {
-      // Gate henüz açık değilse bekle
-      if (!aboutGateOpen) {
-        aboutGateQueue.push(fn);
-        return;
-      }
-
-      // Intro oturmadan hiçbir bölüm gösterilmez (hızlı modda bile)
-      var wait = introWaitMs();
-      if (wait > 0) {
-        setTimeout(fn, wait);
-      } else {
-        fn();
-      }
-    }
-
-    function aboutGateFlush() {
-      var wait = Math.max(introWaitMs(), 0);
-      aboutGateQueue.forEach(function (fn, i) {
-        setTimeout(fn, wait + i * 150);
-      });
-      aboutGateQueue.length = 0;
-    }
-
-    (function () {
-      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var reveals = document.querySelectorAll('.reveal-group');
-
-      if (prefersReduced) {
-        reveals.forEach(function (el) { el.classList.add('visible'); });
-        return;
-      }
-
-      /* Bölümler, hero→intro gate'i ile aynı mesafede tetiklenir:
-         bir sonraki bölümün üst kenarı viewport'un alt sınırından
-         %20 yukarı girdiğinde reveal başlar. Böylece tüm geçişler
-         tek bir tutarlı ritme oturur. */
-      var observer = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          var el = entry.target;
-          var show = function () {
-            el.classList.add('visible');
-          };
-          // Kuyruğa alındı / gösterildi — tekrar tetiklenmesin
-          observer.unobserve(el);
-          aboutGateShow(show);
-        });
-      }, { threshold: 0, rootMargin: '0px 0px -20% 0px' });
-
-      reveals.forEach(function (el) { observer.observe(el); });
-    })();
-
-    // ============================
-    // HERO → INTRO GATE (alt sürüme özel)
-    // Introduction bölümü whoami animasyonundan sonra otomatik açılır;
-    // scroll veya klavye ile de daha önce tetiklenebilir.
-    // ============================
-    (function () {
       var about = document.getElementById('about');
-      if (!about) return;
+      if (about) about.classList.add('about-open');
 
-      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (prefersReduced || about.classList.contains('about-open')) {
-        about.classList.add('about-open');
-        aboutGateOpen = true;
-        aboutGateAt = Date.now();
-        return;
-      }
-
-      function openAbout() {
-        if (aboutGateOpen) return;
-        aboutGateOpen = true;
-        aboutGateAt = Date.now();
-        // Hızlı kaydırma modunda intro animasyonsuz, anında açılır
-        if (fastMode) {
-          introInstant = true;
-          about.classList.add('about-instant');
-        }
-        about.classList.add('about-open');
-        // Intro göründükten sonra bekleyen bölümleri sırayla serbest bırak
-        aboutGateFlush();
-        detach();
-      }
-
-      function keyOpen(e) {
-        if (['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'].indexOf(e.key) !== -1) openAbout();
-      }
-
-      function detach() {
-        window.removeEventListener('scroll', onScroll);
-        window.removeEventListener('keydown', keyOpen);
-      }
-
-      /* Hero'daki whoami animasyonu bittikten sonra introduction
-         bölümünü otomatik açmak için global kanca (hook) */
-      window.openAboutGate = openAbout;
-
-      /* Gate için gereken kaydırma: viewport yüksekliğinin %20'si
-         (en az 100px) — hero ile intro arasındaki geçiş biraz daha
-         erken ve akıcı hissettirir. Küçük/tesadüfi kaydırmalar yine
-         tetiklemez.
-         Hızlı kaydırmada eşik düşürülür (sadece minimum): kullanıcı
-         çok hızlı geçerken intro mümkün olan en erken anda açılır. */
-      var GATE_SCROLL_RATIO = 0.2;
-      var GATE_SCROLL_MIN = 100;
-      function onScroll() {
-        if (aboutGateOpen) return;
-        var need = fastMode
-          ? GATE_SCROLL_MIN
-          : Math.max(GATE_SCROLL_MIN, window.innerHeight * GATE_SCROLL_RATIO);
-        if (window.pageYOffset > need) {
-          openAbout();
-        }
-      }
-
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('keydown', keyOpen);
-
-      // Tarayıcı sayfayı kaydırılmış konumdan geri yüklediyse (yenileme)
-      // ilk scroll'u beklemeden gate'i aç.
-      if (!aboutGateOpen && window.pageYOffset > Math.max(GATE_SCROLL_MIN, window.innerHeight * GATE_SCROLL_RATIO)) {
-        openAbout();
-      }
-
-      // CTA bağlantıları (#projects, #contact) bölümleri atladığından
-      // bunlara tıklanınca gate'i anında aç.
-      document.querySelectorAll('a.cta[href^="#"]').forEach(function (a) {
-        a.addEventListener('click', function () {
-          openAbout();
+      if (instantAll) {
+        document.querySelectorAll('.mask-reveal').forEach(function (m) {
+          m.classList.add('mask-in', 'mask-instant');
         });
-      });
+      } else {
+        // Tüm başlıklar eşzamanlı — skills/hello farkı olmadan aynı anda
+        document.querySelectorAll('.mask-reveal').forEach(function (m) {
+          m.classList.add('mask-in');
+        });
+      }
+    }
+
+    window.revealAllContent = revealAllContent;
+
+    // Reduced motion tercihinde whoami beklemeden her şey
+    // animasyonsuz ve anında gösterilir.
+    (function () {
+      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) {
+        revealAllContent(true);
+      }
     })();
     // ============================
     // Live GitHub data (unauthenticated public API — each call fails independently)
