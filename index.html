@@ -8,9 +8,9 @@
 
 <!-- Anti-FOUC Theme Init Script -->
 <script>
-  // 1) Kullanıcının önceki manuel seçimi (localStorage)
-  // 2) Yoksa işletim sistemi tercihi (prefers-color-scheme)
-  // 3) O da yoksa varsayılan koyu
+  // 1) User's previous manual choice (localStorage)
+  // 2) Otherwise OS preference (prefers-color-scheme)
+  // 3) Otherwise default to dark
   (function () {
     var saved = null;
     try { saved = localStorage.getItem('theme'); } catch (e) {}
@@ -237,7 +237,7 @@
     font-size: 0.85rem;
     color: var(--accent2);
     margin-bottom: 0.75rem;
-    min-height: 1.4em; /* Yükseklik sıçramasını önler */
+    min-height: 1.4em; /* Prevents height jump */
   }
 
   .prompt::before { content: '$ '; color: var(--accent2); }
@@ -257,7 +257,7 @@
     border-right-color: transparent;
   }
 
-  /* Başlık ve Düzen */
+  /* Heading & Layout */
   h1 {
     font-family: var(--font-display);
     font-weight: 600;
@@ -265,7 +265,7 @@
     letter-spacing: -0.03em;
     line-height: 1.05;
     margin-bottom: 0.75rem;
-    min-height: 1.1em; /* İsim yazılmadan önce sayfanın zıplamasını engeller */
+    min-height: 1.1em; /* Prevents page jump before the name is typed */
   }
 
   #typedName {
@@ -282,7 +282,7 @@
     transform: translateY(0);
   }
 
-  /* Ünvan Satırı (Role) */
+  /* Role Line */
   .role {
     font-family: var(--font-mono);
     font-size: clamp(0.68rem, 3.2vw, 0.95rem);
@@ -303,7 +303,7 @@
 
   .role::before { content: '// '; color: var(--text-muted); }
 
-  /* Buton Grubu (CTA) */
+  /* CTA Button Group */
   .cta-group {
     display: flex;
     align-items: center;
@@ -352,7 +352,7 @@
     box-shadow: 0 4px 16px var(--helper-glow);
   }
 
-  /* Projects (ilk buton): hover'da cyan parlar */
+  /* Projects (first button): glows cyan on hover */
   .cta-group .cta--ghost:nth-child(1):hover {
     border-color: var(--accent);
     color: var(--accent);
@@ -372,8 +372,8 @@
      ======================================== */
   .skill-grid {
     display: grid;
-    /* Tek sabit izgara: tum cipler ayni genislik ve geometriyi paylasir.
-       6 ciplik grup 3x2, 4 ciplik grup 2x2 dizilir */
+    /* Single fixed grid: all chips share the same width and geometry.
+       A group of 6 chips lays out as 3x2, a group of 4 as 2x2 */
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
     margin-top: 0.5rem;
@@ -456,7 +456,7 @@
     box-shadow: 0 0 8px var(--helper);
   }
 
-  /* Telefon/tablet dar modda tek sütun; 600px üstünde 2 sütunlu izgara */
+  /* Single column on narrow phone/tablet; 2-column grid above 600px */
   @media (max-width: 600px) {
     .skill-grid { grid-template-columns: 1fr; }
   }
@@ -746,8 +746,8 @@
     color: var(--text-muted);
   }
 
-  /* Istatistik kartlari telefonda/tablette de tek satirda 3 sutun kalir;
-     dar ekranda (<=600px) kart ici bosluklar kisaltilir */
+  /* Stat cards keep a single row of 3 columns on phone/tablet too;
+     inner card padding is shortened on narrow screens (<=600px) */
   @media (max-width: 600px) {
     .gh-stat-card { padding: 0.85rem 0.75rem; }
     .gh-stat-value { font-size: 1.15rem; }
@@ -884,14 +884,14 @@
     gap: 0.55rem;
   }
 
-  /* Email: hover'da ana renkte (cyan) parlar */
+  /* Email: glows in the primary color (cyan) on hover */
   .badge-btn--email:hover {
     border-color: var(--accent);
     color: var(--accent);
     box-shadow: 0 4px 16px var(--accent-glow);
   }
 
-  /* PGP: hover'da yardimci renkte (yesil) parlar */
+  /* PGP: glows in the helper color (green) on hover */
   .badge-btn--pgp:hover {
     border-color: var(--helper);
     color: var(--helper);
@@ -931,7 +931,7 @@
     flex-shrink: 0;
   }
 
-  /* PGP notu yardimci renk vurgusu */
+  /* PGP note helper-color accent */
   .pgp-note { border-left-color: var(--helper); }
   .pgp-note .note-header { color: var(--helper); }
 
@@ -987,12 +987,12 @@
 
 
 
-  /* Sosyal linkler: normalde nötr ghost, hover'da marka rengini kazanır */
+  /* Social links: neutral ghost by default, take brand color on hover */
   .contact-link--instagram { color: var(--text-muted); border-color: var(--rule); }
   a.contact-link--instagram:hover,
   a.contact-link--instagram:focus-visible { color: #E1306C; border-color: #E1306C; }
 
-  /* GitHub: gerçek markası gibi siyah-beyaz, hover dahil */
+  /* GitHub: black & white like its actual brand, including hover */
   a.contact-link--github,
   a.contact-link--github:hover,
   a.contact-link--github:focus-visible { color: var(--text); border-color: var(--rule); }
@@ -1055,7 +1055,7 @@
   /* ========================================
      THEME TOGGLE
      ======================================== */
-  /* Sağ üst kontroller (dil + tema) tek flex kabında — daima aynı hizada */
+  /* Top-right controls (language + theme) in one flex container — always aligned */
   .top-controls {
     position: fixed;
     top: 1.5rem;
@@ -1085,7 +1085,7 @@
     border-color: var(--accent);
   }
 
-  /* İkon rozeti: aktif temayı gösterir (ay = koyu, güneş = açık) */
+  /* Icon badge: shows the active theme (moon = dark, sun = light) */
   .toggle-track {
     width: 24px;
     height: 24px;
@@ -1102,7 +1102,7 @@
     height: 15px;
   }
 
-  /* tersi: buton geçilecek modu gösterir (koyu→güneş, açık→ay) */
+  /* the reverse: the button shows the mode it switches to (dark→sun, light→moon) */
   .toggle-track .icon-moon { display: none; }
   :root[data-theme="light"] .toggle-track .icon-moon { display: block; }
   :root[data-theme="light"] .toggle-track .icon-sun { display: none; }
@@ -1556,8 +1556,8 @@
       var legend = document.getElementById('ghLangLegend');
       if (!bar || !legend || total === 0) return;
 
-      // Tema uyumlu palet: CSS değişkenlerinden okunur (--l1..--l5),
-      // böylece dark/light modlarında otomatik uyum sağlar.
+      // Theme-aware palette: read from CSS variables (--l1..--l5),
+      // so it adapts automatically across dark/light modes.
       var cs = getComputedStyle(document.documentElement);
       function lc(i) { return cs.getPropertyValue('--l' + i).trim() || '#8b9daf'; }
       var helperColor = cs.getPropertyValue('--helper').trim() || '#34D399';
@@ -1687,7 +1687,7 @@
       var isDark = root.dataset.theme === 'dark';
       if (label) label.textContent = isDark ? t.toggleDark : t.toggleLight;
       toggle.setAttribute('aria-pressed', String(!isDark));
-      // ikon-only mod: erişilebilirlik için aria-label güncelle
+      // icon-only mode: update aria-label for accessibility
       toggle.setAttribute('aria-label', isDark ? t.toggleLight : t.toggleDark);
     }
     syncLabel();
@@ -1702,7 +1702,7 @@
       }
     });
 
-    // Kullanıcı açık bir tercih kaydetmediyse OS tema değişikliklerini canlı takip et
+    // Follow OS theme changes live unless the user has saved an explicit preference
     if (window.matchMedia) {
       var mq = window.matchMedia('(prefers-color-scheme: light)');
       var onOsThemeChange = function (e) {
@@ -1715,7 +1715,7 @@
         }
       };
       if (mq.addEventListener) mq.addEventListener('change', onOsThemeChange);
-      else if (mq.addListener) mq.addListener(onOsThemeChange); // eski Safari
+      else if (mq.addListener) mq.addListener(onOsThemeChange); // legacy Safari
     }
 
     // ============================
@@ -1736,7 +1736,7 @@
       var fullName = 'Anıl Akbudak';
       var chars = '!<>-_\\/[]{}—=+*^?#________';
 
-      // Erişilebilirlik: Düşük hareket modu açıksa animasyonsuz anında göster
+      // Accessibility: show instantly without animation when reduced motion is enabled
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         if (cmdEl) cmdEl.textContent = cmdText;
         if (nameEl) { nameEl.textContent = fullName; nameEl.classList.add('visible'); }
@@ -1747,20 +1747,20 @@
 
       var i = 0;
 
-      // 1. ADIM: "whoami" komutu doğal yazma hızında yazılır
+      // STEP 1: the "whoami" command is typed at a natural typing speed
       function typeCommand() {
         if (i <= cmdText.length) {
           cmdEl.textContent = cmdText.slice(0, i);
           i++;
           setTimeout(typeCommand, 110 + Math.random() * 50);
         } else {
-          // Komut bitti, imleci sabit tut ve 280ms bekle (Terminal işleme hissi)
+          // Command finished — hold the caret and wait 280ms (terminal processing feel)
           cmdEl.classList.add('done');
           setTimeout(revealHeroSequence, 280);
         }
       }
 
-      // 2. ADIM: İsim siber güvenlik temasına uygun şekilde çözülerek belirir
+      // STEP 2: the name appears with a cyber-security-style scramble reveal
       function revealHeroSequence() {
         nameEl.classList.add('visible');
         var iteration = 0;
@@ -1780,13 +1780,13 @@
 
           if (iteration >= totalIterations) {
             clearInterval(scrambleInterval);
-            nameEl.innerText = fullName; // Temiz son metin garantisi
+            nameEl.innerText = fullName; // guarantee clean final text
 
-            // 3. ADIM: İsim oturduktan 220ms sonra ünvan açılır
+            // STEP 3: the role fades in 220ms after the name settles
             setTimeout(function () {
               if (roleEl) roleEl.classList.add('visible');
 
-              // 4. ADIM: Ünvandan 200ms sonra CTA butonları sahneye girer
+              // STEP 4: CTA buttons enter 200ms after the role
               setTimeout(function () {
                 if (ctaEl) ctaEl.classList.add('visible');
               }, 200);
@@ -1794,11 +1794,11 @@
             }, 220);
           }
 
-          iteration += 1 / 2; // Hız katsayısı: Çok uzatmadan 200-250ms içinde tamamlar
+          iteration += 1 / 2; // Speed factor: completes in ~200-250ms without dragging on
         }, 30);
       }
 
-      // DOM hazır olur olmaz başlat (load'u beklemeden — yavaş ağda 1-2sn kazandırır)
+      // Start as soon as the DOM is ready (without waiting for load — saves 1-2s on slow networks)
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () { setTimeout(typeCommand, 200); });
       } else {
@@ -1857,7 +1857,7 @@
     })();
 
     // ============================
-    // Yumusak kaydirma (CTA anchor'lari)
+    // Smooth scrolling (CTA anchors)
     // ============================
     function smoothScrollTo(target) {
       var startY = window.pageYOffset;
