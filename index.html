@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Anıl Akbudak — Portfolio</title>
+<title>Anıl Akbudak — Portfolio (v3: Intro Auto-After-Hero)</title>
 <meta name="description" content="Portfolio of an engineer working on cloud security and platform infrastructure.">
 
 <!-- Anti-FOUC Theme Init Script -->
@@ -68,6 +68,7 @@
     --accent-pulse: rgba(56, 189, 248, 0.4);
     --helper: #34D399;
     --helper-glow: rgba(52, 211, 153, 0.18);
+    --mono-glow: rgba(243, 238, 225, 0.24);
     --l1: #38BDF8;
     --l2: #60A5FA;
     --l3: #7DD3FC;
@@ -94,6 +95,7 @@
     --accent-pulse: rgba(1, 115, 206, 0.42);
     --helper: #03875B;
     --helper-glow: rgba(3, 135, 91, 0.22);
+    --mono-glow: rgba(16, 24, 32, 0.18);
     --l1: #0189D5;
     --l2: #2457E6;
     --l3: #0BA5D6;
@@ -144,35 +146,107 @@
   }
 
   /* ========================================
-     SCROLL ANIMATIONS
+     SCROLL ANIMATIONS — HEADING-ONLY
+     Bölüm içerikleri bölüm tetiklenene kadar gizlidir;
+     tetiklendiğinde HAREKETSİZ, anında görünür olur.
+     Tek animasyonlu öğe başlıktır (maskeli süzülme).
+     .reveal-group sınıfı hem içerik görünürlüğünü hem de
+     başlık animasyonunun tetikleyicisini yönetir.
      ======================================== */
-  .reveal {
+  .reveal-group > * {
     opacity: 0;
-    transform: translateY(24px);
+    /* Görünür olmadan önce tıklama/hover almasın */
+    pointer-events: none;
+  }
+
+  .reveal-group.visible > * {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ========================================
+     HERO → INTRO GATE
+     Introduction bölümü whoami animasyonu bittikten sonra
+     otomatik açılır; scroll ile erken tetiklenmesi de mümkündür.
+     İçerik kaymaz, sadece yumuşakça belirir. Başlık maskeli süzülür.
+     ======================================== */
+
+  /* Ayırıcı çizgi hero'nun altında kalıcıdır; #about gizliyken
+     bile görünür (#about'ın kendi border-top'ı kapatılır ki gate
+     açılınca çift çizgi oluşmasın). */
+  .hero {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  #about {
+    opacity: 0;
+    visibility: hidden;
+    border-top: none;
+  }
+
+  #about.about-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Hızlı kaydırmada intro animasyonsuz, anında görünür */
+  #about.about-instant,
+  #about.about-instant.about-open {
+    transition: none;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .reveal {
-      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    #about {
+      transition: opacity 0.45s ease,
+                  visibility 0s linear 0.45s;
+    }
+
+    #about.about-open {
+      transition: opacity 0.45s ease,
+                  visibility 0s;
     }
   }
-
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* stagger delays */
-  .reveal-d1 { transition-delay: 0.08s; }
-  .reveal-d2 { transition-delay: 0.16s; }
-  .reveal-d3 { transition-delay: 0.24s; }
-  .reveal-d4 { transition-delay: 0.32s; }
-  .reveal-d5 { transition-delay: 0.40s; }
 
   /* ========================================
      TAGS & HEADINGS
      ======================================== */
+  /* ========================================
+     APPLE-STYLE MASKED HEADING REVEAL
+     Başlıklar aşağıdan yukarı süzülerek ve
+     bulanıktan netleşerek yüklenir.
+     ======================================== */
+  .mask-reveal {
+    overflow: hidden;
+  }
+
+  .mask-reveal h2 {
+    transform: translateY(110%);
+    filter: blur(8px);
+    /* Blur saçılması sarmalayıcı içine taşıp "iz" bırakmasın:
+       animasyona kadar tamamen görünmez */
+    opacity: 0;
+    will-change: transform, filter, opacity;
+  }
+
+  .reveal-group.visible .mask-reveal h2,
+  #about.about-open .mask-reveal h2 {
+    transform: translateY(0);
+    filter: blur(0);
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .mask-reveal h2 {
+      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+                  filter 0.7s ease-out,
+                  opacity 0.45s ease-out;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mask-reveal h2 { transform: none; filter: none; opacity: 1; }
+  }
+
   .tag {
     display: block;
     font-family: var(--font-mono);
@@ -180,6 +254,8 @@
     letter-spacing: 0.02em;
     color: var(--accent2);
     margin-bottom: 1rem;
+    /* Beyaz zeminde ezilmesini önlemek için hafif et payı */
+    font-weight: 500;
   }
 
   h2 {
@@ -196,6 +272,57 @@
     vertical-align: -0.12em;
     margin-left: 0.22em;
     color: var(--accent);
+    transform-origin: 50% 50%;
+    opacity: 0;
+    transform: scale(0.35);
+  }
+
+  /* Yıldız ikonu, intro gate'i açıldığında selamlaşma animasyonuyla girer */
+  @media (prefers-reduced-motion: no-preference) {
+    #about.about-open .h2-icon {
+      animation: icon-greet 2.6s linear 0.4s both;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .h2-icon { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 4px var(--accent-glow)); }
+  }
+
+  @keyframes icon-greet {
+    0% {
+      opacity: 0;
+      transform: scale(0.35) rotate(0deg);
+      filter: drop-shadow(0 0 0 transparent);
+      animation-timing-function: ease-out;
+    }
+    15% {
+      opacity: 1;
+      transform: scale(0.5) rotate(0deg);
+      filter: drop-shadow(0 0 2px var(--accent-glow));
+      animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+    }
+    75% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+      filter: drop-shadow(0 0 9px var(--accent-glow));
+      animation-timing-function: cubic-bezier(0.3, 1.6, 0.6, 1);
+    }
+    85% {
+      opacity: 1;
+      transform: scale(1.24) rotate(-9deg);
+      filter: drop-shadow(0 0 16px var(--accent-pulse));
+      animation-timing-function: ease-out;
+    }
+    93% {
+      opacity: 1;
+      transform: scale(0.95) rotate(6deg);
+      filter: drop-shadow(0 0 9px var(--accent-glow));
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+      filter: drop-shadow(0 0 4px var(--accent-glow));
+    }
   }
 
   p { color: var(--text-muted); max-width: 56ch; }
@@ -268,18 +395,37 @@
     min-height: 1.1em; /* Prevents page jump before the name is typed */
   }
 
+  /* Optik lens netleşmesi (masked aperture):
+     isim bulanıktan odaklanarak gelir, harf aralığı
+     sıkışıktan doğal haline toparlanır */
   #typedName {
     display: inline-block;
     opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-                transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: opacity, transform;
+    transform: translateY(20px) scale(0.98);
+    filter: blur(8px);
+    letter-spacing: -0.05em; /* Başta sıkışık */
+    will-change: transform, filter, opacity, letter-spacing;
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.5s ease-out,
+      letter-spacing 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   #typedName.visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+    letter-spacing: -0.03em; /* Kendi doğal aralığına oturur */
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #typedName {
+      transform: none;
+      filter: none;
+      opacity: 1;
+      letter-spacing: -0.03em;
+    }
   }
 
   /* Role Line */
@@ -311,6 +457,9 @@
     flex-wrap: wrap;
     opacity: 0;
     transform: translateY(10px);
+    /* Animasyondan önce görünmez amaçla üzerine gelinse bile
+       hover/tıklama almasın */
+    pointer-events: none;
     transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
                 transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: opacity, transform;
@@ -319,6 +468,7 @@
   .cta-group.visible {
     opacity: 1;
     transform: translateY(0);
+    pointer-events: auto;
   }
 
   .cta {
@@ -398,6 +548,11 @@
 
   .sk-group + .sk-group .sk-label b {
     color: var(--helper); /* Green: Active study */
+  }
+
+  /* hands-on / in-progress etiketleri: aşırı kalınlaşmayı yumuşat */
+  .sk-label b {
+    font-weight: 600;
   }
 
   /* 2. Base Chip Styling (Clean & Understated) */
@@ -936,7 +1091,10 @@
   .pgp-note .note-header { color: var(--helper); }
 
   .pgp-fingerprint {
-    display: inline-block;
+    display: inline-flex;
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+    row-gap: 0.3rem;
     font-family: var(--font-mono);
     font-size: 0.78rem;
     color: var(--text);
@@ -945,19 +1103,55 @@
     border-radius: 6px;
     padding: 0.25rem 0.6rem;
     letter-spacing: 0.06em;
-    margin-top: 0.25rem;
+    margin-top: 0.6rem;
     user-select: all;
   }
 
-  .pgp-fingerprint.copyable {
-    cursor: pointer;
-    transition: border-color 0.2s ease, color 0.2s ease;
+  /* Parmak izi iki simetrik blok halinde: dar ekranda ikinci blok
+     tam olarak 5 parçada alta iner (5+5) ve satır başından başlar;
+     geniş ekranda tek satır */
+  .pgp-fingerprint .fp-row {
+    white-space: nowrap;
   }
 
-  .pgp-fingerprint.copyable:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+  /* "Copied" gösterilirken kutu boyutu korunur ve metin ortalanır */
+  .pgp-fingerprint.copied {
+    justify-content: center;
+    text-align: center;
   }
+
+  /* Fingerprint etiketi ile kutu arası, NOTE başlığı ile paragraf
+     arasındaki mesafenin aynısıdır */
+  .pgp-note .fp-label {
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+
+  .pgp-fingerprint.copyable {
+    position: relative;
+    cursor: pointer;
+    padding-right: 1.9rem;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .pgp-fingerprint.copyable::after {
+    content: '⧉';
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8em;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .pgp-fingerprint.copyable:hover, .pgp-fingerprint.copyable:focus-visible {
+    background: var(--bg-alt);
+    border-color: var(--text-muted);
+  }
+
+  .pgp-fingerprint.copyable:hover::after, .pgp-fingerprint.copyable:focus-visible::after { opacity: 0.7; }
 
   /* Casual contact links */
   .contact-links {
@@ -983,19 +1177,26 @@
     color: var(--accent);
     border-color: var(--accent);
     background: var(--bg-alt);
+    transform: translateY(-2px);
   }
-
-
 
   /* Social links: neutral ghost by default, take brand color on hover */
   .contact-link--instagram { color: var(--text-muted); border-color: var(--rule); }
   a.contact-link--instagram:hover,
-  a.contact-link--instagram:focus-visible { color: #E1306C; border-color: #E1306C; }
+  a.contact-link--instagram:focus-visible {
+    color: #E1306C;
+    border-color: #E1306C;
+    box-shadow: 0 4px 16px rgba(225, 48, 108, 0.28);
+  }
 
-  /* GitHub: black & white like its actual brand, including hover */
-  a.contact-link--github,
+  /* GitHub: black & white like its actual brand, with a subtle mono glow */
+  a.contact-link--github { color: var(--text); border-color: var(--rule); }
   a.contact-link--github:hover,
-  a.contact-link--github:focus-visible { color: var(--text); border-color: var(--rule); }
+  a.contact-link--github:focus-visible {
+    color: var(--text);
+    border-color: var(--text);
+    box-shadow: 0 4px 16px var(--mono-glow);
+  }
 
   .contact-link svg {
     width: 15px;
@@ -1056,8 +1257,9 @@
      THEME TOGGLE
      ======================================== */
   /* Top-right controls (language + theme) in one flex container — always aligned */
-  .top-controls {
-    position: fixed;
+   .top-controls {
+    /* THEME & LANG TOGGLE SARMALAYICISI */
+    position: absolute; /* fixed yerine absolute yapıldı */
     top: 1.5rem;
     right: 1.5rem;
     display: flex;
@@ -1108,7 +1310,10 @@
   :root[data-theme="light"] .toggle-track .icon-sun { display: none; }
 
   @media (max-width: 600px) {
-    .top-controls { top: 1rem; right: 1rem; }
+    .top-controls {
+      top: calc(1rem + env(safe-area-inset-top, 0px));
+      right: calc(1rem + env(safe-area-inset-right, 0px));
+    }
     .theme-toggle { padding: 0.35rem; }
   }
 
@@ -1189,7 +1394,7 @@
   }
 
 </style>
-  <noscript><style>#typedName,.role,.cta-group{opacity:1;transform:none}</style></noscript>
+  <noscript><style>#typedName,.role,.cta-group{opacity:1;transform:none;pointer-events:auto}#about{opacity:1;visibility:visible}.reveal-group > *{opacity:1;pointer-events:auto}.mask-reveal h2{transform:none;filter:none;opacity:1}</style></noscript>
 </head>
 <body>
 
@@ -1226,16 +1431,16 @@
 
     <!-- ===== ABOUT ===== -->
     <section id="about">
-      <p class="tag reveal" data-i18n="tagAbout">// introduction</p>
-      <h2 class="reveal reveal-d1" data-i18n="h2About">Hello<svg class="h2-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5 13.8 8.7 20 10 13.8 11.3 12 17.5 10.2 11.3 4 10l6.2-1.3z"/></svg></h2>
-      <p class="reveal reveal-d2" data-i18n="aboutText">Hi, I'm Anıl! I work on the security of cloud systems and server infrastructure, developing toward platform engineering. In my personal projects, I design multi-layered architectures grounded in zero-trust principles, aiming to develop exemplary defense systems against current cyber threats.</p>
+      <p class="tag" data-i18n="tagAbout">// introduction</p>
+      <div class="mask-reveal"><h2 data-i18n="h2About">Hello<svg class="h2-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5 13.8 8.7 20 10 13.8 11.3 12 17.5 10.2 11.3 4 10l6.2-1.3z"/></svg></h2></div>
+      <p data-i18n="aboutText">Hi, I'm Anıl! I work on the security of cloud systems and server infrastructure, developing toward platform engineering. In my personal projects, I design multi-layered architectures grounded in zero-trust principles, aiming to develop practical defense systems against current cyber threats.</p>
     </section>
 
     <!-- ===== SKILLS ===== -->
-    <section id="skills">
-      <p class="tag reveal" data-i18n="tagSkills">// skills &amp; interests</p>
-      <h2 class="reveal reveal-d1" data-i18n="h2Skills">Skills &amp; Interests</h2>
-      <div class="reveal reveal-d2">
+    <section id="skills" class="reveal-group">
+      <p class="tag" data-i18n="tagSkills">// skills &amp; interests</p>
+      <div class="mask-reveal"><h2 data-i18n="h2Skills">Skills &amp; Interests</h2></div>
+      <div>
         <div class="sk-group">
           <p class="sk-label" data-i18n="skAppliedLabel"><b>hands-on</b>:</p>
           <div class="skill-grid">
@@ -1260,11 +1465,11 @@
     </section>
 
     <!-- ===== PROJECTS ===== -->
-    <section id="projects">
-      <p class="tag reveal" data-i18n="tagProjects">// projects</p>
-      <h2 class="reveal reveal-d1" data-i18n="h2Projects">Projects</h2>
+    <section id="projects" class="reveal-group">
+      <p class="tag" data-i18n="tagProjects">// projects</p>
+      <div class="mask-reveal"><h2 data-i18n="h2Projects">Projects</h2></div>
       <ul class="project-list">
-        <li class="project-row reveal reveal-d2">
+        <li class="project-row">
           <a href="https://github.com/akbudakanl/cross-authorized-backup" target="_blank" rel="noopener">
             <span class="project-text">
               <span class="project-title"><span class="project-icon">🛡️</span>Cross Authorized Backup</span>
@@ -1290,12 +1495,12 @@
     </section>
 
     <!-- ===== GITHUB ACTIVITY ===== -->
-    <section id="github-activity">
-      <p class="tag reveal" data-i18n="tagGithub">// github</p>
-      <h2 class="reveal reveal-d1" data-i18n="h2Github">GitHub Activity</h2>
+    <section id="github-activity" class="reveal-group">
+      <p class="tag" data-i18n="tagGithub">// github</p>
+      <div class="mask-reveal"><h2 data-i18n="h2Github">GitHub Activity</h2></div>
 
       <!-- Stat cards -->
-      <div class="gh-stat-row reveal reveal-d2">
+      <div class="gh-stat-row">
         <div class="gh-stat-card">
           <span class="gh-stat-value loading" id="ghStatIssues">&mdash;</span>
           <span class="gh-stat-label" data-i18n="ghLabelIssues">Issues</span>
@@ -1311,20 +1516,20 @@
       </div>
 
       <!-- Contribution heatmap -->
-      <div class="gh-heatmap-wrap reveal reveal-d3">
+      <div class="gh-heatmap-wrap">
         <p class="gh-heatmap-label" data-i18n="ghHeatmapLabel">Recent contributions</p>
         <div class="gh-heatmap" id="ghHeatmap" aria-label="Contribution heatmap"></div>
       </div>
 
       <!-- Top Languages -->
-      <div class="gh-lang-wrap reveal reveal-d4">
+      <div class="gh-lang-wrap">
         <p class="gh-lang-label" data-i18n="ghLangLabel">Top Languages</p>
         <div class="gh-lang-bar" id="ghLangBar"></div>
         <div class="gh-lang-legend" id="ghLangLegend"></div>
       </div>
 
       <!-- Recent issues -->
-      <ul class="gh-issues reveal reveal-d5" id="ghIssuesList" aria-live="polite"></ul>
+      <ul class="gh-issues" id="ghIssuesList" aria-live="polite"></ul>
 
       <!-- hidden helper elements (kept for JS compat) -->
       <p class="gh-stats" id="ghProfileStats" data-repo="akbudakanl/cross-authorized-backup"></p>
@@ -1332,12 +1537,12 @@
     </section>
 
     <!-- ===== CONTACT ===== -->
-    <section class="contact" id="contact">
-      <p class="tag reveal" data-i18n="tagContact">// contact</p>
-      <h2 class="reveal reveal-d1" data-i18n="h2Contact">Contact</h2>
+    <section class="contact reveal-group" id="contact">
+      <p class="tag" data-i18n="tagContact">// contact</p>
+      <div class="mask-reveal"><h2 data-i18n="h2Contact">Contact</h2></div>
 
       <!-- TIER 1: Security / Confidential -->
-      <div class="contact-group reveal reveal-d2">
+      <div class="contact-group">
         <p class="contact-group-title" data-i18n="contactSecTitle">For security reports, legal matters, or other confidential correspondence:</p>
 
         <div class="secure-badges">
@@ -1359,22 +1564,20 @@
         </div>
 
         <!-- NOTE callout -->
-        <div class="pgp-note reveal reveal-d3">
+        <div class="pgp-note">
           <div class="note-header">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
             <span data-i18n="noteLabel">NOTE</span>
           </div>
           <p data-i18n="pgpNote">Please encrypt your message using PGP.</p>
           <br>
-          <span data-i18n="fingerprintLabel">Fingerprint:</span><br>
-          <code class="pgp-fingerprint">
-            F46C 0F0B D707 0F79 907E &nbsp;4D85 25D5 F85B 8362 7D9D
-          </code>
+          <span class="fp-label" data-i18n="fingerprintLabel">Fingerprint:</span>
+          <code class="pgp-fingerprint"><span class="fp-row">F46C 0F0B D707 0F79 907E</span><span class="fp-row">4D85 25D5 F85B 8362 7D9D</span></code>
         </div>
       </div>
 
       <!-- TIER 2: General / Casual -->
-      <div class="contact-group reveal reveal-d4">
+      <div class="contact-group">
         <p class="contact-group-title" data-i18n="contactCasualTitle">For everything else</p>
         <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-muted);" data-i18n="contactCasualDesc">GitHub discussions, issues, or Instagram DM are fine.</p>
         <div class="contact-links">
@@ -1413,13 +1616,13 @@
         status:           'Open to collaboration',
         tagAbout:         '// introduction',
         h2About:          'Hello<svg class="h2-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5 13.8 8.7 20 10 13.8 11.3 12 17.5 10.2 11.3 4 10l6.2-1.3z"/></svg>',
-        aboutText:        'Hi, I\'m Anıl! I work on the security of cloud systems and server infrastructure, developing toward platform engineering. In my personal projects, I design multi-layered architectures grounded in zero-trust principles, aiming to develop exemplary defense systems against current cyber threats.',
+        aboutText:        'Hi, I\'m Anıl! I work on the security of cloud systems and server infrastructure, developing toward platform engineering. In my personal projects, I design multi-layered architectures grounded in zero-trust principles, aiming to develop practical defense systems against current cyber threats.',
         tagSkills:        '// skills &amp; interests',
         h2Skills:         'Skills &amp; Interests',
         tagProjects:      '// projects',
         h2Projects:       'Projects',
         proj1Desc:        'A zero-trust backup architecture built on the cross-authorization requirement between devices — isolated MicroVM disks for self-hosted servers and strict IAM policies for cloud platforms. Data is stored only as ciphertext.',
-        skAppliedLabel:   '<b>hands-on</b>',
+        skAppliedLabel:   '<b>hands-on</b>:',
         skStudyLabel:     '<b>in progress</b>:',
         tagGithub:        '// github',
         h2Github:         'GitHub Activity',
@@ -1441,7 +1644,7 @@
         privacyText:      '<strong>Your privacy is valuable</strong><br><br>User data is not processed in any way unless the security of the site is compromised.<br><br><strong>Data is not sold or shared</strong><br><br>No user data collected on this site is ever sold to third parties or organizations, shared for commercial purposes, or examined in any way other than for cybersecurity analysis (e.g., no advertising, marketing, targeting, or user profiling).<br><br><strong>Governance &amp; Data Retention Policies</strong><br><br>To ensure the integrity of the site and underlying infrastructure, prevent botnet attacks, and detect anomalous network traffic, the technical device information (User-Agent) and IP address are logged. In strict accordance with the data minimization principles of the GDPR, these logs are securely stored on the Cloudflare KV database for a maximum of 1 year (365 days). After this period, they are automatically and permanently destroyed. The cookies utilized by the system (Strictly Necessary Security Cookies) fall strictly under the category of essential cookies required solely for network security and anomaly detection, and they do not perform any personal tracking on your device.',
         toggleDark:       'dark',
         toggleLight:      'light',
-        copySuccess:      'Copied ✓',
+        copySuccess:      'Copied',
         // skill chips
         chips: {
           zeroTrust: 'Zero-Trust Architecture',
@@ -1463,13 +1666,13 @@
         status:           'İş birliğine açık',
         tagAbout:         '// tanışma',
         h2About:          'Merhaba<svg class="h2-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5 13.8 8.7 20 10 13.8 11.3 12 17.5 10.2 11.3 4 10l6.2-1.3z"/></svg>',
-        aboutText:        'Selam, ben Anıl! Bulut sistemlerinin ve sunucu altyapılarının güvenliği üzerine çalışıyor, platform mühendisliği alanında kendimi geliştiriyorum. Kişisel projelerimde sıfır-güven ilkelerine dayalı çok katmanlı mimariler tasarlayarak güncel siber tehditlere karşı örnek savunma sistemleri geliştirmeye çalışıyorum.',
+        aboutText:        'Selam, ben Anıl! Bulut sistemlerinin ve sunucu altyapılarının güvenliği üzerine çalışıyor, platform mühendisliği alanında kendimi geliştiriyorum. Kişisel projelerimde sıfır-güven ilkelerine dayalı çok katmanlı mimariler tasarlayarak güncel siber tehditlere karşı pratik savunma sistemleri geliştirmeye çalışıyorum.',
         tagSkills:        '// yetenekler ve ilgi alanları',
         h2Skills:         'Yetenekler ve İlgi Alanları',
         tagProjects:      '// projeler',
         h2Projects:       'Projeler',
         proj1Desc:        'Cihazlar arasında çapraz yetki gereksinimi ilkesiyle çalışan, sıfır-güven odaklı yedekleme mimarisi. Barındırılan sunucular için izole MicroVM diskleri ve bulut platformları için sıkı IAM politikası. Veriler yalnızca şifrelenmiş olarak saklanır.',
-        skAppliedLabel:   '<b>uygulamalı</b>',
+        skAppliedLabel:   '<b>uygulamalı</b>:',
         skStudyLabel:     '<b>gelişmekte</b>:',
         tagGithub:        '// github',
         h2Github:         'GitHub Aktivitesi',
@@ -1491,7 +1694,7 @@
         privacyText:      '<strong>Mahremiyetiniz değerlidir</strong><br><br>Kullanıcılara ait veriler, sitenin güvenliği ihlal edilmedikçe herhangi bir şekilde işlenmemektedir.<br><br><strong>Verileriniz satılmaz veya paylaşılmaz</strong><br><br>Bu sitede toplanan hiçbir kullanıcı verisi asla üçüncü şahıslara veya kurumlara satılmaz, ticari bir amaçla paylaşılmaz ve siber güvenlik analizleri haricinde hiçbir şekilde (örneğin reklam, pazarlama, hedefleme veya kullanıcı profili oluşturma) incelenemez.<br><br><strong>Yönetim ve Veri Saklama Politikaları</strong><br><br>Sitenin ve arka plandaki altyapıların bütünlüğünü sağlamak, botnet saldırılarını engellemek ve olağandışı ağ trafiğini tespit etmek amacıyla, ziyaretçilerin IP adresleri ve tarayıcı tarafından iletilen cihaz bilgileri (User-Agent) kayıt altına alınmaktadır. Bu kayıtlar, KVKK ve GDPR\'ın veri minimizasyonu ilkeleri doğrultusunda Cloudflare KV veritabanı üzerinde güvenli bir şekilde saklanmakta olup, en fazla 1 yıl (365 gün) süreyle tutulduktan sonra sistem tarafından otomatik ve kalıcı olarak imha edilmektedir. Sistemin kullandığı çerezler (Strictly Necessary Security Cookies), yalnızca ağ güvenliği ve anomali tespiti için gerekli olan "Zorunlu Çerezler" statüsündedir ve cihazınızda herhangi bir kişisel izleme yapmaz.',
         toggleDark:       'koyu',
         toggleLight:      'açık',
-        copySuccess:      'Kopyalandı ✓',
+        copySuccess:      'Kopyalandı',
         chips: {
           zeroTrust: 'Sıfır-Güven Mimarisi',
           iam:       'IAM &amp; Erişim Kontrolü',
@@ -1734,7 +1937,6 @@
       
       var cmdText = 'whoami';
       var fullName = 'Anıl Akbudak';
-      var chars = '!<>-_\\/[]{}—=+*^?#________';
 
       // Accessibility: show instantly without animation when reduced motion is enabled
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1760,42 +1962,30 @@
         }
       }
 
-      // STEP 2: the name appears with a cyber-security-style scramble reveal
+      // STEP 2: the name rises into view, Apple-style (masked slide-up)
       function revealHeroSequence() {
-        nameEl.classList.add('visible');
-        var iteration = 0;
-        var totalIterations = fullName.length;
+        nameEl.textContent = fullName;
+        requestAnimationFrame(function () {
+          nameEl.classList.add('visible');
+        });
 
-        var scrambleInterval = setInterval(function () {
-          nameEl.innerText = fullName
-            .split('')
-            .map(function (letter, index) {
-              if (index < iteration) {
-                return fullName[index];
-              }
-              if (letter === ' ') return ' ';
-              return chars[Math.floor(Math.random() * chars.length)];
-            })
-            .join('');
+        // STEP 3: the role fades in after the name settles
+        setTimeout(function () {
+          if (roleEl) roleEl.classList.add('visible');
 
-          if (iteration >= totalIterations) {
-            clearInterval(scrambleInterval);
-            nameEl.innerText = fullName; // guarantee clean final text
+          // STEP 4: CTA buttons enter 200ms after the role
+          setTimeout(function () {
+            if (ctaEl) ctaEl.classList.add('visible');
 
-            // STEP 3: the role fades in 220ms after the name settles
+            // STEP 5: whoami animasyonu tamamlandıktan sonra
+            // introduction bölümü otomatik olarak açılır
             setTimeout(function () {
-              if (roleEl) roleEl.classList.add('visible');
+              if (window.openAboutGate) window.openAboutGate();
+            }, 450);
 
-              // STEP 4: CTA buttons enter 200ms after the role
-              setTimeout(function () {
-                if (ctaEl) ctaEl.classList.add('visible');
-              }, 200);
+          }, 200);
 
-            }, 220);
-          }
-
-          iteration += 1 / 2; // Speed factor: completes in ~200-250ms without dragging on
-        }, 30);
+        }, 550);
       }
 
       // Start as soon as the DOM is ready (without waiting for load — saves 1-2s on slow networks)
@@ -1818,19 +2008,38 @@
         var value = (fp.textContent || '').replace(/\s+/g, '');
         function done() {
           var t = translations[currentLang] || translations.en;
-          var prev = fp.textContent;
+          // Kutu kısalmasın: mevcut genişliği minimum olarak kilitle
+          if (!fp.style.minWidth) {
+            fp.style.minWidth = fp.offsetWidth + 'px';
+            fp.style.boxSizing = 'border-box';
+          }
+          var prev = fp.innerHTML;
+          fp.classList.add('copied');
           fp.textContent = t.copySuccess;
-          setTimeout(function () { fp.textContent = prev; }, 1500);
+          setTimeout(function () {
+            fp.innerHTML = prev;
+            fp.classList.remove('copied');
+          }, 1500);
         }
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(value).then(done, function () {});
-        } else {
+        // Android/iOS dahil tüm platformlarda "Copied ✓" geri bildirimi
+        // garantilenir: Async Clipboard API reddederse execCommand
+        // fallback'i çalışır ve done() mutlaka tetiklenir.
+        function legacyCopy() {
           var ta = document.createElement('textarea');
           ta.value = value;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
           document.body.appendChild(ta);
           ta.select();
+          ta.setSelectionRange(0, value.length);
           try { document.execCommand('copy'); done(); } catch (e) {}
           document.body.removeChild(ta);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(value).then(done, legacyCopy);
+        } else {
+          legacyCopy();
         }
       });
     })();
@@ -1885,25 +2094,206 @@
     // ============================
     // Scroll reveal
     // ============================
+    /* HIZ FARKINDALIKLI REVEAL:
+       - Intro (introduction) her zaman önce gelir: gate açıldıktan
+         sonra INTRO_SETTLE_MS süresi dolmadan hiçbir bölüm gösterilmez
+         (hızlı kaydırma modunda bile).
+       - Intro oturduktan sonra tüm bölümler viewport'a girdikleri anda
+         açılır; hızlı kaydırmada da akışkanlık bozulmaz. */
+    var aboutGateOpen = false;
+    var aboutGateAt = 0;
+    var aboutGateQueue = [];
+    /* Intro hızlı kaydırmada animasyonsuz açıldıysa bekleme de gerekmez */
+    var introInstant = false;
+    /* Intro'nun açılış animasyonu ~0.9s; tamamlanması için tamponlu süre */
+    var INTRO_SETTLE_MS = 1000;
+
+    /* --- Kaydırma hızı takibi (px/ms) --- */
+    var FAST_V = 1.4;        // Bu hızın üzerinde: hızlı kaydırma modu
+    var SLOW_V = 0.35;       // Bu hızın altına düşünce sakin moda dönüş
+    var COOLDOWN_MS = 300;   // Moddan çıkmak için gereken sakin süre
+    var fastMode = false;
+    var lastFastAt = 0;
+    var lastY = window.pageYOffset;
+    var lastT = Date.now();
+
+    function nowMs() {
+      return (window.performance && performance.now) ? performance.now() : Date.now();
+    }
+
+    // Intro oturana kadar kalan süre (pozitifse henüz hazır değil)
+    function introWaitMs() {
+      if (!aboutGateOpen || introInstant) return 0;
+      return INTRO_SETTLE_MS - (Date.now() - aboutGateAt);
+    }
+
+    // Kuyruğu serbest bırak; intro oturmadıysa oturma süresinin
+    // sonuna, sıraya göre planla.
+    function flushGateQueueNow() {
+      if (!aboutGateQueue.length) return;
+      var pending = aboutGateQueue.slice();
+      aboutGateQueue.length = 0;
+      var wait = Math.max(introWaitMs(), 0);
+      pending.forEach(function (fn, i) {
+        if (aboutGateOpen) {
+          setTimeout(fn, wait + i * 150);
+        } else {
+          fn();
+        }
+      });
+    }
+
+    function updateVelocity() {
+      var t = nowMs();
+      var y = window.pageYOffset;
+      var dt = t - lastT;
+      var v = dt > 0 ? Math.abs(y - lastY) / dt : 0;
+      lastY = y;
+      lastT = t;
+
+      if (v >= FAST_V) {
+        fastMode = true;
+        lastFastAt = t;
+        flushGateQueueNow();
+      } else if (fastMode && v < SLOW_V && t - lastFastAt > COOLDOWN_MS) {
+        fastMode = false;
+      }
+    }
+
+    window.addEventListener('scroll', updateVelocity, { passive: true });
+
+    function aboutGateShow(fn) {
+      // Gate henüz açık değilse bekle
+      if (!aboutGateOpen) {
+        aboutGateQueue.push(fn);
+        return;
+      }
+
+      // Intro oturmadan hiçbir bölüm gösterilmez (hızlı modda bile)
+      var wait = introWaitMs();
+      if (wait > 0) {
+        setTimeout(fn, wait);
+      } else {
+        fn();
+      }
+    }
+
+    function aboutGateFlush() {
+      var wait = Math.max(introWaitMs(), 0);
+      aboutGateQueue.forEach(function (fn, i) {
+        setTimeout(fn, wait + i * 150);
+      });
+      aboutGateQueue.length = 0;
+    }
+
     (function () {
       var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var reveals = document.querySelectorAll('.reveal');
+      var reveals = document.querySelectorAll('.reveal-group');
 
       if (prefersReduced) {
         reveals.forEach(function (el) { el.classList.add('visible'); });
         return;
       }
 
+      /* Bölümler, hero→intro gate'i ile aynı mesafede tetiklenir:
+         bir sonraki bölümün üst kenarı viewport'un alt sınırından
+         %20 yukarı girdiğinde reveal başlar. Böylece tüm geçişler
+         tek bir tutarlı ritme oturur. */
       var observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
+          if (!entry.isIntersecting) return;
+          var el = entry.target;
+          var show = function () {
+            el.classList.add('visible');
+          };
+          // Kuyruğa alındı / gösterildi — tekrar tetiklenmesin
+          observer.unobserve(el);
+          aboutGateShow(show);
         });
-      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+      }, { threshold: 0, rootMargin: '0px 0px -20% 0px' });
 
       reveals.forEach(function (el) { observer.observe(el); });
+    })();
+
+    // ============================
+    // HERO → INTRO GATE (alt sürüme özel)
+    // Introduction bölümü whoami animasyonundan sonra otomatik açılır;
+    // scroll veya klavye ile de daha önce tetiklenebilir.
+    // ============================
+    (function () {
+      var about = document.getElementById('about');
+      if (!about) return;
+
+      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced || about.classList.contains('about-open')) {
+        about.classList.add('about-open');
+        aboutGateOpen = true;
+        aboutGateAt = Date.now();
+        return;
+      }
+
+      function openAbout() {
+        if (aboutGateOpen) return;
+        aboutGateOpen = true;
+        aboutGateAt = Date.now();
+        // Hızlı kaydırma modunda intro animasyonsuz, anında açılır
+        if (fastMode) {
+          introInstant = true;
+          about.classList.add('about-instant');
+        }
+        about.classList.add('about-open');
+        // Intro göründükten sonra bekleyen bölümleri sırayla serbest bırak
+        aboutGateFlush();
+        detach();
+      }
+
+      function keyOpen(e) {
+        if (['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'].indexOf(e.key) !== -1) openAbout();
+      }
+
+      function detach() {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('keydown', keyOpen);
+      }
+
+      /* Hero'daki whoami animasyonu bittikten sonra introduction
+         bölümünü otomatik açmak için global kanca (hook) */
+      window.openAboutGate = openAbout;
+
+      /* Gate için gereken kaydırma: viewport yüksekliğinin %20'si
+         (en az 100px) — hero ile intro arasındaki geçiş biraz daha
+         erken ve akıcı hissettirir. Küçük/tesadüfi kaydırmalar yine
+         tetiklemez.
+         Hızlı kaydırmada eşik düşürülür (sadece minimum): kullanıcı
+         çok hızlı geçerken intro mümkün olan en erken anda açılır. */
+      var GATE_SCROLL_RATIO = 0.2;
+      var GATE_SCROLL_MIN = 100;
+      function onScroll() {
+        if (aboutGateOpen) return;
+        var need = fastMode
+          ? GATE_SCROLL_MIN
+          : Math.max(GATE_SCROLL_MIN, window.innerHeight * GATE_SCROLL_RATIO);
+        if (window.pageYOffset > need) {
+          openAbout();
+        }
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('keydown', keyOpen);
+
+      // Tarayıcı sayfayı kaydırılmış konumdan geri yüklediyse (yenileme)
+      // ilk scroll'u beklemeden gate'i aç.
+      if (!aboutGateOpen && window.pageYOffset > Math.max(GATE_SCROLL_MIN, window.innerHeight * GATE_SCROLL_RATIO)) {
+        openAbout();
+      }
+
+      // CTA bağlantıları (#projects, #contact) bölümleri atladığından
+      // bunlara tıklanınca gate'i anında aç.
+      document.querySelectorAll('a.cta[href^="#"]').forEach(function (a) {
+        a.addEventListener('click', function () {
+          openAbout();
+        });
+      });
     })();
     // ============================
     // Live GitHub data (unauthenticated public API — each call fails independently)
