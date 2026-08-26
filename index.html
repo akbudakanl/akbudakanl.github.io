@@ -8,13 +8,23 @@
 
 <!-- Anti-FOUC Theme Init Script -->
 <script>
-  // 1) User's previous manual choice (localStorage)
+  // 1) User's previous manual choice (localStorage, expires after 14 days)
   // 2) Otherwise OS preference (prefers-color-scheme)
   // 3) Otherwise default to dark
   (function () {
+    var EXPIRY_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
     var saved = null;
-    try { saved = localStorage.getItem('theme'); } catch (e) {}
-    if (saved === 'light' || saved === 'dark') {
+    try {
+      var theme = localStorage.getItem('theme');
+      var ts = parseInt(localStorage.getItem('theme_ts'), 10);
+      if ((theme === 'light' || theme === 'dark') && ts && (Date.now() - ts < EXPIRY_MS)) {
+        saved = theme;
+      } else if (theme) {
+        // Expired — remove stale preference
+        try { localStorage.removeItem('theme'); localStorage.removeItem('theme_ts'); } catch (e) {}
+      }
+    } catch (e) {}
+    if (saved) {
       document.documentElement.dataset.theme = saved;
     } else {
       var prefersLight = window.matchMedia &&
@@ -1604,6 +1614,7 @@
     // ============================
     // i18n Translations
     // ============================
+    var EXPIRY_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
     var translations = {
       en: {
         role:             'Cloud Security &amp; Platform Engineering',
@@ -1706,7 +1717,16 @@
       }
     };
 
-    var currentLang = localStorage.getItem('lang') || 'en';
+    var currentLang = (function () {
+      var EXPIRY_MS = 14 * 24 * 60 * 60 * 1000;
+      try {
+        var lang = localStorage.getItem('lang');
+        var ts = parseInt(localStorage.getItem('lang_ts'), 10);
+        if (lang && ts && (Date.now() - ts < EXPIRY_MS)) return lang;
+        if (lang) { localStorage.removeItem('lang'); localStorage.removeItem('lang_ts'); }
+      } catch (e) {}
+      return 'en';
+    })();
 
     // GitHub live-data state — filled in by the fetches further down
     var profileData = null;     // { publicRepos }
@@ -1818,6 +1838,7 @@
       if (!t) return;
       currentLang = lang;
       localStorage.setItem('lang', lang);
+      localStorage.setItem('lang_ts', Date.now().toString());
       document.documentElement.lang = lang;
 
       // Update all data-i18n elements
@@ -1894,7 +1915,10 @@
 
     toggle.addEventListener('click', function () {
       root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-      try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
+      try {
+        localStorage.setItem('theme', root.dataset.theme);
+        localStorage.setItem('theme_ts', Date.now().toString());
+      } catch (e) {}
       syncLabel();
       // Re-render language colors so they adapt to the new theme instantly
       if (cachedLangCounts) {
@@ -1906,9 +1930,13 @@
     if (window.matchMedia) {
       var mq = window.matchMedia('(prefers-color-scheme: light)');
       var onOsThemeChange = function (e) {
-        var stored = null;
-        try { stored = localStorage.getItem('theme'); } catch (err) {}
-        if (stored !== 'light' && stored !== 'dark') {
+        var hasPreference = false;
+        try {
+          var stored = localStorage.getItem('theme');
+          var ts = parseInt(localStorage.getItem('theme_ts'), 10);
+          hasPreference = (stored === 'light' || stored === 'dark') && ts && (Date.now() - ts < EXPIRY_MS);
+        } catch (err) {}
+        if (!hasPreference) {
           root.dataset.theme = e.matches ? 'light' : 'dark';
           syncLabel();
           if (cachedLangCounts) buildLanguageBar(cachedLangCounts, cachedLangTotal);
