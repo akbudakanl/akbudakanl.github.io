@@ -8,7 +8,7 @@
 
 <!-- Anti-FOUC Theme Init Script -->
 <script>
-  // 1) User's previous manual choice (localStorage, expires after 14 days)
+  // 1) User's previous manual choice (localStorage, expires after 14 days of inactivity)
   // 2) Otherwise OS preference (prefers-color-scheme)
   // 3) Otherwise default to dark
   (function () {
@@ -16,12 +16,12 @@
     var saved = null;
     try {
       var theme = localStorage.getItem('theme');
-      var ts = parseInt(localStorage.getItem('theme_ts'), 10);
-      if ((theme === 'light' || theme === 'dark') && ts && (Date.now() - ts < EXPIRY_MS)) {
+      var lastVisit = parseInt(localStorage.getItem('lastVisit'), 10);
+      if ((theme === 'light' || theme === 'dark') && lastVisit && (Date.now() - lastVisit < EXPIRY_MS)) {
         saved = theme;
       } else if (theme) {
         // Expired — remove stale preference
-        try { localStorage.removeItem('theme'); localStorage.removeItem('theme_ts'); } catch (e) {}
+        try { localStorage.removeItem('theme'); } catch (e) {}
       }
     } catch (e) {}
     if (saved) {
@@ -31,6 +31,8 @@
         window.matchMedia('(prefers-color-scheme: light)').matches;
       document.documentElement.dataset.theme = prefersLight ? 'light' : 'dark';
     }
+    // Update last visit timestamp on every page load
+    try { localStorage.setItem('lastVisit', Date.now().toString()); } catch (e) {}
   })();
 </script>
 
@@ -1721,9 +1723,9 @@
       var EXPIRY_MS = 14 * 24 * 60 * 60 * 1000;
       try {
         var lang = localStorage.getItem('lang');
-        var ts = parseInt(localStorage.getItem('lang_ts'), 10);
-        if (lang && ts && (Date.now() - ts < EXPIRY_MS)) return lang;
-        if (lang) { localStorage.removeItem('lang'); localStorage.removeItem('lang_ts'); }
+        var lastVisit = parseInt(localStorage.getItem('lastVisit'), 10);
+        if (lang && lastVisit && (Date.now() - lastVisit < EXPIRY_MS)) return lang;
+        if (lang) { localStorage.removeItem('lang'); }
       } catch (e) {}
       return 'en';
     })();
@@ -1838,7 +1840,6 @@
       if (!t) return;
       currentLang = lang;
       localStorage.setItem('lang', lang);
-      localStorage.setItem('lang_ts', Date.now().toString());
       document.documentElement.lang = lang;
 
       // Update all data-i18n elements
@@ -1917,7 +1918,6 @@
       root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
       try {
         localStorage.setItem('theme', root.dataset.theme);
-        localStorage.setItem('theme_ts', Date.now().toString());
       } catch (e) {}
       syncLabel();
       // Re-render language colors so they adapt to the new theme instantly
@@ -1933,8 +1933,8 @@
         var hasPreference = false;
         try {
           var stored = localStorage.getItem('theme');
-          var ts = parseInt(localStorage.getItem('theme_ts'), 10);
-          hasPreference = (stored === 'light' || stored === 'dark') && ts && (Date.now() - ts < EXPIRY_MS);
+          var lastVisit = parseInt(localStorage.getItem('lastVisit'), 10);
+          hasPreference = (stored === 'light' || stored === 'dark') && lastVisit && (Date.now() - lastVisit < EXPIRY_MS);
         } catch (err) {}
         if (!hasPreference) {
           root.dataset.theme = e.matches ? 'light' : 'dark';
